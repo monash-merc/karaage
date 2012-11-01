@@ -6,7 +6,7 @@
 
 {% block content_title %}{% if user %}Edit{% else %}Create{% endif %} User{% endblock %}
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 <div>
 {% load forms %}

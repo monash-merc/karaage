@@ -15,7 +15,7 @@
  &rsaquo; {% if institute %}Edit{% else %}Create{% endif %} Institute
 {% endblock %}   
 
-{% block content %}
+{% block content_main %}
     {% if form.errors or delegate_formset.errors  %}
     <p class="errornote">
       Please correct the error{{ form.errors|pluralize }} below.

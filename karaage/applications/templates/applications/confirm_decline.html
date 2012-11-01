@@ -12,7 +12,7 @@ function showForm() {
 {% endblock %}
 
 
-{% block content %}
+{% block content_main %}
     <h1>Are you sure?</h1>    
     <p>Are you sure you want to decline {{ application.applicant }}'s application to join {{ application.project.pid }}? </p>
 	<p>An email will be sent to {{ application.applicant }}. <a id="show-email" href="#" onclick="showForm()">Customise email</a></p>

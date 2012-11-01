@@ -13,7 +13,7 @@
 {{ form.media }}
 {% endblock %}
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 <fieldset class="module aligned ()">
 {% formfield form.pid %}

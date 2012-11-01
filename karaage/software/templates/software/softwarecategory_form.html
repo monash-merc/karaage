@@ -9,7 +9,7 @@
  &rsaquo; {% if obj %}Edit{% else %}Create{% endif %} Software Category
 {% endblock %}   
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 {% load forms %}
 <fieldset class="module aligned ()">

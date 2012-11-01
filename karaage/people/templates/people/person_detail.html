@@ -56,10 +56,8 @@
     </div>
 {% endblock %}
 
-{% block content %}
+{% block content_main %}
 {% with person.is_locked as is_locked %}
-
-<div id="content-main">
   
   <div class="module {% if is_locked or not person.is_active %}locked{% endif %}">
     <h2>Users</h2>
@@ -220,7 +218,6 @@
   	</div>
   	{% endif %}
 
-</div>
 
 {% endwith %}
 {% endblock %}

@@ -9,7 +9,7 @@
  &rsaquo; {% if version %}Edit{% else %}Create{% endif %} Software Version
 {% endblock %}   
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 {% load forms %}
 <fieldset class="module aligned ()">

@@ -6,7 +6,7 @@
 {% block content_title %}{% if project %}Edit{% else %}Create{% endif %} Project{% endblock %}
 
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 
 

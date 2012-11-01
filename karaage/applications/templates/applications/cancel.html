@@ -1,6 +1,6 @@
 {% extends "base_site.html" %}
 
-{% block content %}
+{% block content_main %}
     <h1>Are you sure?</h1>    
     <p>Are you sure you want to cancel your application? </p>
     <form method="post" action=".">{% csrf_token %}

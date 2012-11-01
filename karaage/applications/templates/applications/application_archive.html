@@ -1,6 +1,6 @@
 {% extends "base_site.html" %}
 
-{% block content %}
+{% block content_main %}
     <h1>Archive Application?</h1>    
     <p>Confirm archiving application "{{ application }}"? </p>
     <form method="post" action=".">{% csrf_token %}

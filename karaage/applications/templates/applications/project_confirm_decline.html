@@ -11,7 +11,7 @@ function showForm() {
 </script> 
 {% endblock %}
 
-{% block content %}
+{% block content_main %}
     <h1>Are you sure?</h1>    
     <p>Are you sure you want to decline {{ application.applicant }}'s project application? </p>
 <p>An email will be sent to {{ application.applicant.first_name }}. <a id="show-email" href="#" onclick="showForm()">Customise email</a></p>

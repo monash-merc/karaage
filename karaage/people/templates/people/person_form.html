@@ -13,7 +13,7 @@
  &rsaquo; {% if person %}Edit{% else %}Create{% endif %} User
 {% endblock %}   
 
-{% block content %}
+{% block content_main %}
 <form method="post" action=".">{% csrf_token %}
 <div>
 {% load forms %}
