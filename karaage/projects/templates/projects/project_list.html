@@ -6,7 +6,7 @@
 
 {% block bread_crumbs_1 %}{{ block.super }} &rsaquo; Projects{% endblock %}   
 
-{% block objecttools %}
+{% block object-tools %}
 {% if perms.projects.add_project %}
 <ul class="object-tools"><li><a href="add/" class="addlink">Add project</a></li></ul>
 {% endif %}

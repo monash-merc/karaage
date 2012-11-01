@@ -6,7 +6,7 @@
 
 {% block bread_crumbs_1 %}{{ block.super }} &rsaquo; Users {% endblock %}   
 
-{% block objecttools %}
+{% block object-tools %}
 {% if perms.people.add_person %}
 <ul class="object-tools"><li><a href="add/" class="addlink">Add user</a></li></ul>
 {% endif %}
