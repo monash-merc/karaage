@@ -1,4 +1,4 @@
-{% extends "threecol.html" %}
+{% extends "main.html" %}
 {% load forms %}
 
 {% block title %}Projects{% endblock %}
@@ -15,13 +15,9 @@
 &rsaquo; {{ project.pid }}
 {% endblock %}
 
-{% block content %}
-
-<div id="content-main">
-
-  <div id="content-related-extra">
+{% block sidebar_extra %}
     <div class="module">
-      <h2>Tasks</h2>
+      <h2>Project links</h2>
       <ul class="plainlist"><br />
         <li><a href="{{ project.get_usage_url }}">View Usage</a><br /><br /></li>
         <li><a href="logs/">View logs</a><br /><br /></li>
@@ -30,9 +26,11 @@
         {% if perms.projects.delete_project and project.is_active%}<li><a href="delete/" class="deletelink">Delete project</a></li>{% endif %}
       </ul>
     </div>
-  </div>
-  
-  
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
   <div class="module">
     <h2>Project Details</h2>
     <h3>{{ project }}
@@ -118,7 +116,8 @@
       </thead>   	
       <tbody>
    	{% for user in project.users.select_related %}
-	<tr class="{% cycle row1,row2 %}">
+        {% with user.is_locked as is_locked %}
+	<tr class="{% cycle row1,row2 %} {% if is_locked or not user.is_active %}locked{% endif %}">
 	  <td><a href="{{ user.get_absolute_url }}">{{ user.username }}</a></td>
 	  <td>{{ user.get_full_name }}</td>
 	  <td>{{ user.email|urlize }}</td>
@@ -126,7 +125,7 @@
 	    {% if not user.is_active %}
 	    <img src="{{ STATIC_URL }}admin/img/icon-no.gif" alt="inactive" />
 	    {% else %}
-	    {% if user.is_locked %}
+	    {% if is_locked %}
 	    <img src="{{ STATIC_URL }}img/lock.png" alt="locked" />
 	    {% else %}
 	    <img src="{{ STATIC_URL }}admin/img/icon-yes.gif" alt="active" />
@@ -138,6 +137,7 @@
 	  <td><a href="{% url kg_remove_project_member project.pid,user.username %}" class="deletelink">Remove</a>
 	    {% endif %}
 	</tr>
+        {% endwith %}
 	{% endfor %}
       </tbody>  	
     </table>

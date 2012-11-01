@@ -5,15 +5,19 @@
 {% block content_title %}&nbsp;{% endblock %}
 {% block bread_crumbs_1 %}{{ block.super }} &rsaquo; Machines{% endblock %}
 
-{% block content %}
-<div id="content-main">
+{% block object-tools %}
   <ul class="object-tools">
 {% if perms.machines.add_machinecategory %}
   <li><a href="{% url kg_machinecategory_add %}" class="addlink">Add machine category</a></li>  
 {% endif %}
   {% if perms.machines.add_machine %}
-  <li><a href="add/" class="addlink">Add machine</a></li></ul>
+  <li><a href="add/" class="addlink">Add machine</a></li>
   {% endif %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
   <div class="module">
     <h2>Machines</h2>
     <ul>

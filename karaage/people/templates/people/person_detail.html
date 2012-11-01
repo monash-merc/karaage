@@ -1,4 +1,4 @@
-{% extends "threecol.html" %}
+{% extends "main.html" %}
 {% load comments %}
 {% load machines %}
 {% block title %}Users{% endblock %}
@@ -15,57 +15,59 @@
 &rsaquo; {{ person }}
 {% endblock %}   
 
-{% block content %}
+{% block sidebar_extra %}
 {% get_comment_count for person as comment_count %}
-
-  <div id="content-related-extra">
     <div class="module">
-      <h2>Tasks</h2>
+      <h2>User links</h2>
       
-      <ul class="plainlist">
-        <li>&nbsp;</li>
+      <ul>
         {% if not person.is_active %}
         {% if not requestor %}
         <li><a href="activate/">Activate</a></li>
         {% endif %}
         {% endif %}
         {% if perms.people.change_person and person.is_active %}
-        <li class="changelink"><a href="edit/">Edit details</a><br /><br /></li>
+        <li class="changelink"><a href="edit/">Edit details</a></li>
         {% endif %}
         {% if perms.machines.add_useraccount and person.is_active %}
-        <li class="addlink"><a href="add_useraccount/">Add user account</a><br /><br /></li>
+        <li class="addlink"><a href="add_useraccount/">Add user account</a></li>
         {% endif %}
         {% if perms.people.delete_person and person.is_active %}
-        <li class="deletelink"><a href="delete/">Delete</a><br /><br /></li>
+        <li class="deletelink"><a href="delete/">Delete</a></li>
 	{% endif %}
-	<li><a href="{% url kg_userlogs person.id %}">Logs</a><br /><br /></li>
-	<li class="addlink"><a href="add_comment/">Add comment</a><br /><br /></li>
-	<li><a href="comments/">Comments</a>&nbsp;({{ comment_count }})<br /><br /></li>
+	<li><a href="{% url kg_userlogs person.id %}">Logs</a></li>
+	<li class="addlink"><a href="add_comment/">Add comment</a></li>
+	<li><a href="comments/">Comments</a>&nbsp;({{ comment_count }})</li>
 	{% if person.is_active %}
-	<li><a href="ldap/">LDAP</a><br /><br /></li>
+	<li><a href="ldap/">LDAP</a></li>
 	{% if perms.people.change_person and person.is_active %}
 	{% if person.is_locked %}
 	<li><a href="unlock/"><img src="{{ STATIC_URL }}img/lock.png" alt="Lock"/>&nbsp;Unlock</a></li>
 	{% else %}
-	<li class="changelink"><a href="password_change/">Change Password</a><br /><br /></li>
-	<li><a href="lock/"><img src="{{ STATIC_URL }}img/unlock.png" alt="Unlock"/>&nbsp;Lock</a><br /><br /></li>
+	<li class="changelink"><a href="password_change/">Change Password</a></li>
+	<li><a href="lock/"><img src="{{ STATIC_URL }}img/unlock.png" alt="Unlock"/>&nbsp;Lock</a></li>
 	{% endif %}
-	<li><a href="bounced_email/">Bounced Email</a><br /><br /></li>
+	<li><a href="bounced_email/">Bounced Email</a></li>
 	{% endif %}
-	<li><a href="{% url kg_job_list %}?user={{ person.username }}">Display all jobs</a><br /><br /></li>
-	<li><a href="{% url pbs_user_detail person.username %}">Submitted jobs</a><br /><br /></li>
+	<li><a href="{% url kg_job_list %}?user={{ person.username }}">Display all jobs</a></li>
+	<li><a href="{% url pbs_user_detail person.username %}">Submitted jobs</a></li>
 	{% endif %}
       </ul>
     </div>
-  </div>
+{% endblock %}
+
+{% block content %}
+{% with person.is_locked as is_locked %}
+
+<div id="content-main">
   
-  <div class="module">
+  <div class="module {% if is_locked or not person.is_active %}locked{% endif %}">
     <h2>Users</h2>
     <h3>{% if person.title %}{{ person.title }}{% endif %} {{ person }}
       {% if not person.is_active %}
       <img src="{{ STATIC_URL }}admin/img/icon_error.gif" alt="Not Active" title="Not Active" />  
       {% else %}
-      {% if person.is_locked %}
+      {% if is_locked %}
       <img src="{{ STATIC_URL }}img/lock.png" alt="locked" />
       {% else %}
       <img src="{{ STATIC_URL }}admin/img/icon_success.gif" alt="Active" title="Active" />
@@ -110,14 +112,14 @@
     
   </div>
   {% if person.leaders.all %}
-  <div class="module">
+  <div class="module {% if is_locked or not person.is_active %}locked{% endif %}">
     <h2>Projects I lead</h2>
     {% gen_table person.leaders.all %}
   </div>
   {% endif %}	
   
   {% for ua in person.useraccount_set.all %}
-  <div class="module">
+  <div class="module {% if is_locked or not person.is_active %}locked{% endif %}">
     <h2>{{ ua.machine_category }} Account</h2>
     <h5>Account</h5>
     <table cellspacing="0">
@@ -218,6 +220,8 @@
   	</div>
   	{% endif %}
 
+</div>
 
+{% endwith %}
 {% endblock %}
  
