@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 
 from karaage.common.decorators import login_required
-
+import karaage.common.saml as saml
 
 @login_required
 def profile(request):
@@ -34,7 +34,11 @@ def profile(request):
 
 
 def logout(request, username=None):
-    url = reverse("index")
+# JH fixed to use saml logout if it is a saml session
+    if saml.is_saml_session(request):
+        url = saml.logout_url(request)
+    else:
+        url = reverse("index")
     from django.contrib.auth import logout
     logout(request)
     messages.success(request, 'Logout was successful.')

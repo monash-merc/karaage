@@ -330,12 +330,14 @@ USAGE_IS_PUBLIC = True
 SHIB_SUPPORTED = False
 
 # How do we interpret HTTP parameters as shibboleth values?
+# JH change persistent_id from HTTP_AUEDUPERSONSHAREDTOKEN and added full_name
 SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
-    "HTTP_PERSISTENT_ID": (True, "persistent_id"),
+    "HTTP_AUEDUPERSONSHAREDTOKEN": (True, "persistent_id"),
     "HTTP_MAIL": (True, "email"),
     "HTTP_GIVENNAME": (True, "first_name"),
     "HTTP_SN": (True, "last_name"),
+    "HTTP_CN": (True, "full_name"),
     "HTTP_TELEPHONENUMBER": (False, "telephone"),
 }
 
