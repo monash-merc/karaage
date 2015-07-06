@@ -131,10 +131,15 @@ class GlobalDataStore(base.GlobalDataStore):
         luser.rename(uid=new_username)
 
     def add_person_to_group(self, person, group):
+# JH: To resolve tldap DoesNotExist exception, need more test
         """ Add person to group. """
-        lgroup = self._groups().get(cn=group.name)
-        person = self._people().get(uid=person.username)
-        lgroup.secondary_people.add(person)
+        lgroup = None
+        try:
+            lgroup = self._groups().get(cn=group.name)
+            person = self._people().get(uid=person.username)
+        except:
+            if lgroup and person:
+                lgroup.secondary_people.add(person)
 
     def remove_person_from_group(self, person, group):
         """ Remove person from group. """
@@ -306,7 +311,9 @@ class MachineCategoryDataStore(base.MachineCategoryDataStore):
             else:
                 luser.loginShell = account.shell
                 luser.unlock()
-            luser.save()
+# JH: To resolve error of calling from external script
+            with transaction.atomic():
+                luser.save()
 
             # add all groups
             for group in account.person.groups.all():
@@ -334,10 +341,16 @@ class MachineCategoryDataStore(base.MachineCategoryDataStore):
         luser.rename(uid=new_username)
 
     def add_account_to_group(self, account, group):
+# JH: To resolve tldap DoesNotExist exception, need more tests
         """ Add account to group. """
-        lgroup = self._groups().get(cn=group.name)
-        person = self._accounts().get(uid=account.username)
-        lgroup.secondary_accounts.add(person)
+        lgroup = None
+        person = None
+        try:
+            lgroup = self._groups().get(cn=group.name)
+            person = self._accounts().get(uid=account.username)
+        except:
+            if person and lgroup:
+                lgroup.secondary_accounts.add(person)
 
     def remove_account_from_group(self, account, group):
         """ Remove account from group. """
