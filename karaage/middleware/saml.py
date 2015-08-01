@@ -21,7 +21,7 @@ from django.core.exceptions import ImproperlyConfigured
 from karaage.people.models import Person
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+from karaage.common.util import Util as util
 import karaage.common.saml as saml
 
 
@@ -73,7 +73,10 @@ class SamlUserMiddleware(object):
         # We are seeing this user for the first time in this session, attempt
         # to authenticate the user.
         try:
-            person = Person.objects.get(saml_id=saml_id)
+        # JH add aafbootstrap
+            person = util.aafbootstrap(attrs)
+            if not person:
+                return    
         except Person.DoesNotExist:
             return
 

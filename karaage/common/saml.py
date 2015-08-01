@@ -20,7 +20,7 @@ import six
 from django.conf import settings
 from django import forms
 from karaage.institutes.models import Institute
-
+from karaage.common.util import Util as util
 
 def is_saml_session(request):
     if 'HTTP_SHIB_SESSION_ID' not in request.META:
@@ -48,6 +48,9 @@ def parse_attributes(request):
         if not value or value == '':
             if required:
                 error = True
+# JH workaround to resolve Monash IDP missing first_name.
+    if error:
+        error = util.parseAttributes(shib_attrs, error)
     return shib_attrs, error
 
 
