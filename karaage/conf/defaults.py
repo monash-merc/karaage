@@ -337,7 +337,7 @@ SHIB_ATTRIBUTE_MAP = {
     "HTTP_MAIL": (True, "email"),
     "HTTP_GIVENNAME": (True, "first_name"),
     "HTTP_SN": (True, "last_name"),
-    "HTTP_COMMONNAME": (True, "full_name"),
+    "HTTP_CN": (True, "full_name"),
     "HTTP_TELEPHONENUMBER": (False, "telephone"),
 }
 

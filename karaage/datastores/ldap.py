@@ -306,9 +306,7 @@ class MachineCategoryDataStore(base.MachineCategoryDataStore):
             else:
                 luser.loginShell = account.shell
                 luser.unlock()
-# JH: To resolve error of calling from external script
-            with transaction.atomic():
-                luser.save()
+            luser.save()
 
             # add all groups
             for group in account.person.groups.all():
