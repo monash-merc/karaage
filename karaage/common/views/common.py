@@ -35,6 +35,7 @@ from karaage.people.tables import PersonTable, GroupTable
 from karaage.people.models import Person, Group
 from karaage.projects.tables import ProjectTable
 from karaage.projects.models import Project
+from karaage.common.util import Util as util
 
 
 @admin_required
@@ -76,6 +77,12 @@ def index(request):
         return admin_index(request)
     return render_to_response(
         'karaage/common/index.html', context_instance=RequestContext(request))
+
+def aafbootstrap(request):
+    if settings.ADMIN_REQUIRED or is_admin(request):
+        return admin_index(request)
+    util.aafbootstrap(request)
+    return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 
 @admin_required

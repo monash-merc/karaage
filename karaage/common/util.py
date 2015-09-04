@@ -25,6 +25,28 @@ class Util():
         logger.debug(message)
 
     @classmethod
+    def parseShibAttributes(self, request):
+        shib_attrs = {}
+        error = False
+        for header, attr in settings.SHIB_ATTRIBUTE_MAP.items():
+            required, name = attr
+            values = request.META.get(header, None)
+            value = None
+            if values:
+                try:
+                    value = values.split(';')[0]
+                except:
+                    value = values
+
+            shib_attrs[name] = value
+            if not value or value == '':
+                if required:
+                    error = True
+        if error:
+            error = self.parseAttributes(shib_attrs, error)
+        return shib_attrs, error
+         
+    @classmethod
     def parseAttributes(self, attr, error):
         if error:
             if 'first_name' in attr and 'full_name' in attr and 'last_name' in attr:
@@ -82,8 +104,11 @@ class Util():
         return person 
     
     @classmethod
-    def aafbootstrap(self, attr):
+    def aafbootstrap(self, request):
         from karaage.institutes.models import Institute
+        attrs, error = self.parseShibAttributes(request)
+        if error:
+            return None
         d = {}
         d["title"] = ""
         d["first_name"] = attr['first_name']
@@ -131,10 +156,6 @@ class Util():
                     person.saml_id = d['saml_id']
                     person.save()
                 self.log("Create user account %s" %(person.username))
-                if self.isMember(person) == False:
-                    self.joinDefaultProject(person)
-                    self.log("User %s joined default project" %(person.username))
-            person.full_clean()
         except:
             self.log("Failed to add person exception %s" % traceback.format_exc())
         return person
@@ -159,22 +180,4 @@ class Util():
         if hasattr(settings, "DEFAULT_MACHINE_CATEGORY_NAME"):
             mc = MachineCategory.objects.get(name = settings.DEFAULT_MACHINE_CATEGORY_NAME)
         return mc
-
-    @classmethod
-    def joinDefaultProject(self, p):
-        try:
-            if hasattr(settings, "DEFAULT_PROJECT_PID"):
-                project = Project.objects.get(pid = settings.DEFAULT_PROJECT_PID)
-                if project and project.is_active:
-                    project.group.members.add(p)
-                    self.log("User %s is added to default project %s" %(p.username, project.pid))
-                    machineCategory = self.getDefaultMachineCategory()
-                    if machineCategory:
-                        if not p.has_account(machineCategory):
-                            Account.create(p, project, machineCategory)
-                            self.log("Create user account %s %s" %(p.username, project.pid))
-
-        except: 
-            self.log("Exception to add user to project")
-
 
