@@ -23,6 +23,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 import karaage.common.saml as saml
+from karaage.common.util import Util as util 
 
 
 class SamlUserMiddleware(object):
@@ -60,7 +61,8 @@ class SamlUserMiddleware(object):
             return
 
         # Can we get the shib attributes we need?
-        attrs, error = saml.parse_attributes(request)
+        attrs, error = util.parseShibAttributes(request)
+#        attrs, error = saml.parse_attributes(request)
         if error:
             return render_to_response('saml_error.html',
                                       {'shib_attrs': attrs},
