@@ -58,4 +58,5 @@ urlpatterns = patterns(
 profile_urlpatterns = patterns(
     'karaage.projects.views',
     url(r'^projects/$', 'profile_projects', name='kg_profile_projects'),
+    url(r'^joinprojects/$', 'profile_all_projects', name='kg_profile_all_projects'),
 )

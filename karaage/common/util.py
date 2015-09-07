@@ -107,9 +107,12 @@ class Util():
     @classmethod
     def aafbootstrap(self, request):
         from karaage.institutes.models import Institute
-        attr, error = self.parseShibAttributes(request)
-        if error:
-            return None
+        attr, error_message = self.parseShibAttributes(request)
+        new_user = False
+        error = False
+        if error_message:
+            error = True
+            return new_user, error 
         d = {}
         d["title"] = ""
         d["first_name"] = attr['first_name']
@@ -135,10 +138,12 @@ class Util():
         person = self.searchPerson(d["saml_id"])
         if person:
             self.updateProfile(person, d)
-            return person
         else:
-            return self.addPerson(d)
-    
+            person = self.addPerson(d)
+            if person:
+                new_user = True  
+        return new_user, error
+
     @classmethod
     def updateProfile(self, p, d):
         if p.email != d['email']:
