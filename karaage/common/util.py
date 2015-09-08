@@ -18,13 +18,28 @@ logger = logging.getLogger(__name__)
 
 class Util(): 
 
-    def __init(self):
-        projectId = "pCvl"
+    def __init__(self):
+        self.init_file_path = "/root/.karaage_init"
+
+    @classmethod
+    def init_file(self):
+        return "/root/.karaage_init"
 
     @classmethod
     def log(self, message):
         logger.debug(message)
 
+    @classmethod
+    def init_touch(self):
+        with open(self.init_file(), 'a'):
+            os.utime(self.init_file(), None)
+
+    @classmethod
+    def need_init(self):
+        if os.path.isfile(self.init_file()):
+            return False 
+        return True 
+    
     @classmethod
     def parseShibAttributes(self, request):
         shib_attrs = {}
@@ -165,6 +180,13 @@ class Util():
                     person.saml_id = d['saml_id']
                     person.save()
                 self.log("Create user account %s" %(person.username))
+            if self.need_init():
+                self.log("Init projects") 
+                if self.setDefaultProjects():
+                    self.log("Set default projects OK") 
+                    self.init_touch()
+                else:
+                    self.log("Set default projects failed")
         except:
             self.log("Failed to add person exception %s" % traceback.format_exc())
         return person
@@ -207,5 +229,54 @@ class Util():
                     institute.save()
         return institute
 
-            
+    @classmethod
+    def getProject(self, name):
+        self.log("Get Project 1 %s" %(name))
+        project = None
+        try:
+            project = Project.objects.get(name = name)
+            if project:
+                self.log("Find project %s" %(project.name))
+            else:
+                self.log("Project %s not found" %(project.name))
+        except Project.DoesNotExist:
+            self.log("project %s does not exists" %(name))
+        except:
+            self.log("Exception: ", traceback.format_exc())
+        finally:
+            return project
+
+    @classmethod
+    def createProject(self, pid, name, institute_name):
+        project = None
+        try:
+            institute = getInstitute(institute_name)
+            if institute:
+                self.log("Find insititute %s" %(institute.name))
+                project = Project.objects.create(pid = pid, name = name, institute = institute)
+            else:
+                self.log("Insititute %s does not exist" %(institute_name))
+        except:
+            self.log("Exception: ", traceback.format_exc())
+        finally:
+            return project
+
+    @classmethod
+    def setDefaultProjects(self):
+        result = True 
+        if hasattr(settings, "DEFAULT_PROJECTS"):
+            for p in settings.DEFAULT_PROJECTS:
+                project = self.getProject(p["project_name"])
+                if project:
+                    self.log("Find project %s" %(project.name))
+                else:
+                    self.log("Create project name = %s, pid = %s, institute name = %s" %(p["project_name"], p["pid"], p["institute_name"]))
+                    project = self.createProject(p["pid"], p["project_name"], p["institute_name"])
+                    if project:
+                        self.log("Create project %s OK." %(project.name))
+                    else:
+        		result = False
+                        self.log("Create project %s failed." %(p["project_name"]))
+                        break
+        return result            
 
