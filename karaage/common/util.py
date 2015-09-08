@@ -12,6 +12,7 @@ import logging
 from django.conf import settings
 from karaage.institutes.models import Institute
 from karaage.machines.models import Account
+from karaage.people.models import Person, Group
 
 logger = logging.getLogger(__name__)
 
@@ -106,9 +107,12 @@ class Util():
     @classmethod
     def aafbootstrap(self, request):
         from karaage.institutes.models import Institute
-        attrs, error = self.parseShibAttributes(request)
-        if error:
-            return None
+        attr, error_message = self.parseShibAttributes(request)
+        new_user = False
+        error = False
+        if error_message:
+            error = True
+            return new_user, error 
         d = {}
         d["title"] = ""
         d["first_name"] = attr['first_name']
@@ -134,10 +138,12 @@ class Util():
         person = self.searchPerson(d["saml_id"])
         if person:
             self.updateProfile(person, d)
-            return person
         else:
-            return self.addPerson(d)
-    
+            person = self.addPerson(d)
+            if person:
+                new_user = True  
+        return new_user, error
+
     @classmethod
     def updateProfile(self, p, d):
         if p.email != d['email']:
@@ -150,6 +156,9 @@ class Util():
     def addPerson(self, d):
         person = None
         try:
+            institute = self.getOrCreateDefaultInstitute(d['idp'])
+            if not institute:
+                return None
             person = Person.objects.create(username = d['username'], password = d['password'], short_name = d['short_name'], full_name = d['full_name'], email = d['email'], institute = Institute.objects.get(saml_entityid = d['idp']), saml_id = d['saml_id'])
             if person:
                 if not person.saml_id:
@@ -180,4 +189,23 @@ class Util():
         if hasattr(settings, "DEFAULT_MACHINE_CATEGORY_NAME"):
             mc = MachineCategory.objects.get(name = settings.DEFAULT_MACHINE_CATEGORY_NAME)
         return mc
+    
+    @classmethod
+    def getOrCreateDefaultInstitute(self, entityId):
+        self.log("getOrCreateDefaultInsitute")
+        institute = None
+        if hasattr(settings, "DEFAULT_INSTITUTE_NAME"):
+            groupname = settings.DEFAULT_INSTITUTE_NAME
+            try:
+                group, _ =Group.objects.get_or_create(name = groupname)
+#                institute = Institute.objects.get(saml_entityid=entityId, name = groupname)
+                institute = Institute.objects.get(name = groupname)
+                
+            except Institute.DoesNotExist:
+                institute = Institute(name = groupname, group = group, saml_entityid = entityId, is_active = True)
+                if institute:
+                    institute.save()
+        return institute
+
+            
 
