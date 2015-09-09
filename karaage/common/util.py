@@ -156,7 +156,7 @@ class Util():
     def addPerson(self, d):
         person = None
         try:
-            institute = self.getOrCreateDefaultInstitute(d['idp'])
+            institute = self.getInstitute(d['idp'])
             if not institute:
                 return None
             person = Person.objects.create(username = d['username'], password = d['password'], short_name = d['short_name'], full_name = d['full_name'], email = d['email'], institute = Institute.objects.get(saml_entityid = d['idp']), saml_id = d['saml_id'])
@@ -191,20 +191,12 @@ class Util():
         return mc
     
     @classmethod
-    def getOrCreateDefaultInstitute(self, entityId):
-        self.log("getOrCreateDefaultInsitute")
+    def getInstitute(self, entityId):
         institute = None
-        if hasattr(settings, "DEFAULT_INSTITUTE_NAME"):
-            groupname = settings.DEFAULT_INSTITUTE_NAME
-            try:
-                group, _ =Group.objects.get_or_create(name = groupname)
-#                institute = Institute.objects.get(saml_entityid=entityId, name = groupname)
-                institute = Institute.objects.get(name = groupname)
-                
-            except Institute.DoesNotExist:
-                institute = Institute(name = groupname, group = group, saml_entityid = entityId, is_active = True)
-                if institute:
-                    institute.save()
+        try:
+            institute = Institute.objects.get(saml_entityid=entityId)
+        except Institute.DoesNotExist:
+            self.log("Insititute IDP %s does not exisit" %(entityId))
         return institute
 
             
