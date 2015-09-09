@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 class Util(): 
 
-    def __init__(self):
-        self.result = True
+    def __init(self):
+        projectId = "pCvl"
 
     @classmethod
     def log(self, message):
@@ -156,7 +156,7 @@ class Util():
     def addPerson(self, d):
         person = None
         try:
-            institute = self.getOrCreateDefaultInstitute(d['idp'])
+            institute = self.getInstitute(d['idp'])
             if not institute:
                 return None
             person = Person.objects.create(username = d['username'], password = d['password'], short_name = d['short_name'], full_name = d['full_name'], email = d['email'], institute = Institute.objects.get(saml_entityid = d['idp']), saml_id = d['saml_id'])
@@ -168,4 +168,36 @@ class Util():
         except:
             self.log("Failed to add person exception %s" % traceback.format_exc())
         return person
+
+    @classmethod
+    def isMember(self, p):
+        member = False
+        try:
+            if hasattr(settings, "DEFAULT_PROJECT_PID"):
+                project = Project.objects.get(pid = settings.DEFAULT_PROJECT_PID)
+                if project and project.is_active:
+                    members = project.group.members.filter(pk = p.pk)
+                    if members.count() > 0:
+                        member = True
+        except:
+            self.log("Exception to search member in project: %s" % traceback.format_exc())
+        return member
+
+    @classmethod
+    def getDefaultMachineCategory(self):
+        mc = None
+        if hasattr(settings, "DEFAULT_MACHINE_CATEGORY_NAME"):
+            mc = MachineCategory.objects.get(name = settings.DEFAULT_MACHINE_CATEGORY_NAME)
+        return mc
+    
+    @classmethod
+    def getInstitute(self, entityId):
+        institute = None
+        try:
+            institute = Institute.objects.get(saml_entityid=entityId)
+        except Institute.DoesNotExist:
+            self.log("Insititute IDP %s does not exisit" %(entityId))
+        return institute
+
+            
 
