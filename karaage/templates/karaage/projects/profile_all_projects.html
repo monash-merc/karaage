@@ -8,17 +8,14 @@
 
 
 {% block profile_content %}
-<div class="module">
-    <h2>Apply for following projects</h2>
+<div class="module object-tools">
+    <h2>Join existing projects or apply for new projects</h2>
+<!--
     {% render_table project_list %}
-
-    {% is_for_each_app_include_empty "profile_project_detail_tools.html" as is_empty %}
-    {% if not is_empty %}
-    <div class="object-tools">
-        <ul>
-            {% for_each_app_include "profile_project_detail_tools.html" %}
-        </ul>
-    </div>
-    {% endif %}
+-->
+  <ul>
+      <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply for new projects</a></li>
+      <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join existing projects</a></li>
+  </ul>
 </div>
 {% endblock %}

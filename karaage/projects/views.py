@@ -39,33 +39,6 @@ from karaage.projects.utils import get_new_pid, add_user_to_project, \
 import karaage.common as util
 
 @login_required
-def profile_all_projects(request):
-    config = tables.RequestConfig(request, paginate={"per_page": 5})
-    person = request.user
-    project_list = Project.objects.all()
-    project_list = ProjectTable(project_list, prefix="all-")
-    config.configure(project_list)
-
-    delegate_project_list = Project.objects.filter(
-        institute__delegates=person, is_active=True)
-    delegate_project_list = ProjectTable(
-        delegate_project_list, prefix="delegate-")
-    config.configure(delegate_project_list)
-
-    leader_project_list = Project.objects.filter(
-        leaders=person, is_active=True)
-    leader_project_list = ProjectTable(
-        leader_project_list, prefix="leader-")
-    config.configure(leader_project_list)
-
-    return render_to_response(
-        'karaage/projects/profile_all_projects.html',
-        {'person': person, 'project_list': project_list,
-            'delegate_project_list': delegate_project_list,
-            'leader_project_list': leader_project_list},
-        context_instance=RequestContext(request))
-
-@login_required
 def profile_projects(request):
     config = tables.RequestConfig(request, paginate={"per_page": 5})
 
@@ -91,6 +64,77 @@ def profile_projects(request):
         {'person': person, 'project_list': project_list,
             'delegate_project_list': delegate_project_list,
             'leader_project_list': leader_project_list},
+        context_instance=RequestContext(request))
+
+@login_required
+def join_project(request, project_id=None):
+    config = tables.RequestConfig(request, paginate={"per_page": 5})
+    person = request.user
+    project_list = Project.objects.all()
+    project_list = ProjectTable(project_list, prefix="all-")
+    config.configure(project_list)
+
+    delegate_project_list = Project.objects.filter(
+        institute__delegates=person, is_active=True)
+    delegate_project_list = ProjectTable(
+        delegate_project_list, prefix="delegate-")
+    config.configure(delegate_project_list)
+
+    leader_project_list = Project.objects.filter(
+        leaders=person, is_active=True)
+    leader_project_list = ProjectTable(
+        leader_project_list, prefix="leader-")
+    config.configure(leader_project_list)
+
+    return render_to_response(
+        'karaage/projects/join_project.html',
+        {'person': person, 'project_list': project_list,
+            'delegate_project_list': delegate_project_list,
+            'leader_project_list': leader_project_list},
+        context_instance=RequestContext(request))
+
+
+@login_required
+def apply_project(request, project_id=None):
+
+    if project_id is None:
+        project = None
+        old_pid = None
+        flag = 1
+    else:
+        project = get_object_or_404(Project, id=project_id)
+        old_pid = project.pid
+        flag = 2
+
+    form = UserProjectForm(instance=project, data=request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            project = form.save(commit=False)
+            if project_id is not None:
+                # if project is being edited, project_id cannot change.
+                project.pid = old_pid
+            elif not project.pid:
+                # if project was being created, did the user give a project_id
+                # we should use? If not, then we have to generate one
+                # ourselves.
+                project.pid = get_new_pid(project.institute)
+            project.save()
+            approved_by = request.user
+            project.activate(approved_by)
+            form.save_m2m()
+            if flag == 1:
+                messages.success(
+                    request, "Project '%s' created succesfully" % project)
+            else:
+                messages.success(
+                    request, "Project '%s' edited succesfully" % project)
+
+            return HttpResponseRedirect(project.get_absolute_url())
+
+    return render_to_response(
+        'karaage/projects/apply_project.html',
+        locals(),
         context_instance=RequestContext(request))
 
 

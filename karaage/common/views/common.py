@@ -84,8 +84,6 @@ def aafbootstrap(request):
     new_user, error = util.aafbootstrap(request)
     if error:
         return 
-    if new_user:
-        return HttpResponseRedirect('/karaage/profile/joinprojects/')
     return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 
