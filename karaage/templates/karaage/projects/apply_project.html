@@ -1,0 +1,15 @@
+{% extends "karaage/common/profile_base.html" %}
+{% load karaage_tags %}
+{% load render_table from django_tables2 %}
+
+
+{% block title %}Projects - My profile{% endblock %}
+{% block profile_title %}Projects{% endblock %}
+
+
+{% block profile_content %}
+<div class="module">
+    <h2>Apply for project</h2>
+    <li><a href="{% url 'kg_application_new' %}" class="addlink">Apply for project</a></li>
+</div>
+{% endblock %}
