@@ -40,8 +40,8 @@
         <li><a class="{% active request "profile/accounts/" %}" href="{% url 'kg_profile_accounts' %}">Accounts</a></li>
         <li><a class="{% active request "profile/institutes/" %}" href="{% url 'kg_profile_institutes' %}">Institutes</a></li>
         <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_projects' %}">Projects</a></li>
-        <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply Projects</a></li>
-        <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join Projects</a></li>
+        <li><a href="{% url 'kg_application_new' %}" class="addlink">Apply Projects</a></li>
+        <li><a href="{% url 'kg_application_new' %}" class="addlink">Join Projects</a></li>
         {% endif %}
         {% for_each_app_include "main_profile.html" %}
         {% if user.is_authenticated %}
