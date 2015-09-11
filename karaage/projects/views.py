@@ -38,7 +38,6 @@ from karaage.projects.utils import get_new_pid, add_user_to_project, \
     remove_user_from_project
 import karaage.common as util
 
-@login_required
 def profile_all_projects(request):
     config = tables.RequestConfig(request, paginate={"per_page": 5})
     person = request.user
