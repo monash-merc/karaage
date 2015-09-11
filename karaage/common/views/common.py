@@ -81,9 +81,12 @@ def index(request):
 def aafbootstrap(request):
     if settings.ADMIN_REQUIRED or is_admin(request):
         return admin_index(request)
-    new_user, error = util.aafbootstrap(request)
+    new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
+    if new_user:
+        redirect_to = reverse('kg_profile_all_projects')
+        return HttpResponseRedirect(redirect_to)
     return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 
