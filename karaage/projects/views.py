@@ -39,6 +39,33 @@ from karaage.projects.utils import get_new_pid, add_user_to_project, \
 import karaage.common as util
 
 @login_required
+def profile_all_projects(request):
+    config = tables.RequestConfig(request, paginate={"per_page": 5})
+    person = request.user
+    project_list = Project.objects.all()
+    project_list = ProjectTable(project_list, prefix="all-")
+    config.configure(project_list)
+
+    delegate_project_list = Project.objects.filter(
+        institute__delegates=person, is_active=True)
+    delegate_project_list = ProjectTable(
+        delegate_project_list, prefix="delegate-")
+    config.configure(delegate_project_list)
+
+    leader_project_list = Project.objects.filter(
+        leaders=person, is_active=True)
+    leader_project_list = ProjectTable(
+        leader_project_list, prefix="leader-")
+    config.configure(leader_project_list)
+
+    return render_to_response(
+        'karaage/projects/profile_all_projects.html',
+        {'person': person, 'project_list': project_list,
+            'delegate_project_list': delegate_project_list,
+            'leader_project_list': leader_project_list},
+        context_instance=RequestContext(request))
+
+@login_required
 def profile_projects(request):
     config = tables.RequestConfig(request, paginate={"per_page": 5})
 
