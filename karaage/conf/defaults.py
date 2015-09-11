@@ -199,7 +199,9 @@ ROOT_URLCONF = 'karaage.conf.urls'
 
 # The URL where requests are redirected for login, especially when
 # using the login_required() decorator.
-LOGIN_URL = 'kg_profile_login'
+# JH buggy??
+LOGIN_URL = 'kg_profile_login_saml'
+#LOGIN_URL = 'kg_profile_login'
 
 # The absolute path to the directory where collectstatic will collect static
 # files for deployment.

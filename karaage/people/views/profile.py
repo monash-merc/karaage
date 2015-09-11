@@ -90,7 +90,9 @@ def saml_login(request):
         else:
             return HttpResponseBadRequest("<h1>Bad Request</h1>")
     elif request.user.is_authenticated():
-        error = "You are already logged in."
+# JH fix the bug
+        return HttpResponseRedirect(redirect_to)
+#        error = "You are already logged in."
     elif saml_session:
         attrs, error = saml.parse_attributes(request)
         saml_id = attrs['persistent_id']
