@@ -112,7 +112,7 @@ class Util():
         error = False
         if error_message:
             error = True
-            return new_user, error 
+            return new_user, error, None 
         d = {}
         d["title"] = ""
         d["first_name"] = attr['first_name']
@@ -142,7 +142,7 @@ class Util():
             person = self.addPerson(d)
             if person:
                 new_user = True  
-        return new_user, error
+        return new_user, error, person 
 
     @classmethod
     def updateProfile(self, p, d):
