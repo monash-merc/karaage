@@ -10,9 +10,6 @@
 {% block profile_content %}
 <div class="module object-tools">
     <h2>Join existing projects or apply for new projects</h2>
-<!--
-    {% render_table project_list %}
--->
   <ul>
       <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply for new projects</a></li>
       <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join existing projects</a></li>
