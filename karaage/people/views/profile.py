@@ -26,7 +26,7 @@ from django.core.urlresolvers import reverse
 from karaage.common.decorators import login_required
 from karaage.people.models import Person
 from karaage.people.emails import send_reset_password_email
-from karaage.people.forms import PersonForm, PasswordChangeForm
+from karaage.people.forms import PersonForm, PasswordChangeForm, PasswordChangeFormV2
 
 import karaage.common as common
 from karaage.common.forms import LoginForm
@@ -203,14 +203,15 @@ def password_change(request):
     person = request.user
 
     if request.POST:
-        form = PasswordChangeForm(data=request.POST, person=person)
+        form = PasswordChangeFormV2(data=request.POST, person=person)
+#        form = PasswordChangeForm(data=request.POST, person=person)
 
         if form.is_valid():
             form.save()
             messages.success(request, "Password changed successfully")
             return HttpResponseRedirect(reverse('kg_profile'))
     else:
-        form = PasswordChangeForm(person=person)
+        form = PasswordChangeFormV2(person=person)
 
     return render_to_response(
         'karaage/common/profile_password.html',

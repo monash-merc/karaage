@@ -178,6 +178,33 @@ class AdminPasswordChangeForm(forms.Form):
         person.set_password(data['new1'])
         person.save()
 
+class PasswordChangeFormV2(AdminPasswordChangeForm):
+#    old = forms.CharField(widget=forms.PasswordInput(), label='Old password')
+
+    def clean_new2(self):
+        username = self.person.username
+        password1 = self.cleaned_data.get('new1')
+        password2 = self.cleaned_data.get('new2')
+#        old_password = self.cleaned_data.get('old', None)
+        return validate_password(username, password1, password2)
+#        return validate_password(username, password1, password2, old_password)
+
+    def save(self):
+        data = self.cleaned_data
+        person = self.person
+        person.set_password(data['new1'])
+        person.save()
+
+#    def clean_old(self):
+#        person = Person.objects.authenticate(
+#            username=self.person.username,
+#            password=self.cleaned_data['old'])
+#        if person is None:
+#            raise forms.ValidationError(
+#                six.u('Your old password was incorrect'))
+#
+#        return self.cleaned_data['old']
+
 
 class PasswordChangeForm(AdminPasswordChangeForm):
     old = forms.CharField(widget=forms.PasswordInput(), label='Old password')
