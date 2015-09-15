@@ -22,18 +22,27 @@
     </div>
 
     {% else %}
-
-    <div class="module">
-        <h2>Welcome</h2>
-        <p>On this site you can:</p>
-        <ul>
-            <li>Check/edit your personal details</li>
-            <li>View your projects and usage</li>
-            <li>View and agree to license terms for restricted software</li>
-            <li>Change your password</li>
+      {% if user.is_authenticated %}
+        <div class="module object-tools">
+         <h2>Welcome {{ user.username }}, please select following buttons to join existing projects or apply for new projects</h2>
+           <ul>
+             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply for new projects</a></li>
+             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join existing projects</a></li>
+             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_password' %}">Change Password</a></li>
         </ul>
-    </div>
-
+      </div>
+      {% else %}
+        <div class="module">
+           <h2>Welcome</h2>
+           <p>On this site you can:</p>
+           <ul>
+              <li>Check/edit your personal details</li>
+              <li>View your projects and usage</li>
+              <li>View and agree to license terms for restricted software</li>
+              <li>Change your password</li>
+          </ul>
+      </div>
+    {% endif %}
     {% endif %}
 
     {% for_each_app_include "index_bottom.html" %}

@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+{% load karaage_tags %}
+{% load render_table from django_tables2 %}
+{% block title %}Home{% endblock %}
+
+
+{% block content %}
+<div id="content-main">
+
+    {% for_each_app_include "index_top.html" %}
+
+    {% if is_admin %}
+
+    <div class="module object-tools">
+        <h2>Newest People</h2>
+        {% render_table newest_people %}
+    </div>
+
+    <div class="module">
+        <h2>Newest Projects</h2>
+        {% render_table newest_projects %}
+    </div>
+
+    {% else %}
+
+    <div class="module object-tools">
+       <h2>Join existing projects or apply for new projects</h2>
+       <ul>
+           <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply for new projects</a></li>
+           <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join existing projects</a></li>
+      </ul>
+
+    </div>
+
+    {% endif %}
+
+    {% for_each_app_include "index_bottom.html" %}
+
+    {% if is_admin %}
+    <div class="module">
+        <h2>Recent Actions</h2>
+        {% render_table recent_actions %}
+        <div class="object-tools">
+            <ul>
+                <li><a href="{% url "kg_log_list" %}">View All</a></li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
