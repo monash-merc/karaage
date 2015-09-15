@@ -67,6 +67,7 @@ urlpatterns = patterns(
     url(r'^machines/', include('karaage.machines.urls.machines')),
     url(r'^profile/', include(profile_urlpatterns)),
     url(r'^aafbootstrap/', 'karaage.common.views.common.aafbootstrap', name='aafbootstrap'),
+    url(r'^samlredirect/', 'karaage.common.views.common.samlredirect', name='samlredirect'),
 
     url(r'^$', 'karaage.common.views.common.index', name='index'),
     url(r'^search/$', 'karaage.common.views.common.search',

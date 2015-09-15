@@ -24,7 +24,6 @@ urlpatterns = patterns(
     url(r'^$', 'project_list', name='kg_project_list'),
     url(r'^add/$', 'add_edit_project', name='kg_project_add'),
     url(r'^no_users/$', 'no_users', name='kg_empty_projects_list'),
-    url(r'^joinprojects/$', 'profile_all_projects', name='kg_profile_all_projects'),
     url(r'^quota/(?P<projectquota_id>\d+)/$',
         'projectquota_edit', name='kg_projectquota_edit'),
     url(r'^quota/(?P<projectquota_id>\d+)/delete/$',

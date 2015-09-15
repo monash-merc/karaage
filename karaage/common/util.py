@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import
-import os, sys, random, string, traceback
+import os, sys, random, string, traceback, datetime
 from django.contrib.auth.models import User
 from django.db.models import Q
 from karaage.people.models import Person
@@ -159,7 +159,7 @@ class Util():
             institute = self.getInstitute(d['idp'])
             if not institute:
                 return None
-            person = Person.objects.create(username = d['username'], password = d['password'], short_name = d['short_name'], full_name = d['full_name'], email = d['email'], institute = Institute.objects.get(saml_entityid = d['idp']), saml_id = d['saml_id'])
+            person = Person.objects.create(username = d['username'], password = d['password'], short_name = d['short_name'], full_name = d['full_name'], email = d['email'], institute = Institute.objects.get(saml_entityid = d['idp']), saml_id = d['saml_id'], is_active = True, date_approved = datetime.date.today())
             if person:
                 if not person.saml_id:
                     person.saml_id = d['saml_id']

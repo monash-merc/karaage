@@ -36,7 +36,15 @@ from karaage.people.models import Person, Group
 from karaage.projects.tables import ProjectTable
 from karaage.projects.models import Project
 from karaage.common.util import Util as util
+from karaage.common.decorators import login_required
 
+@login_required
+def samlredirect(request):
+    if 'next' in request.REQUEST:
+        redirect_to = request.REQUEST['next']
+    else:
+        redirect_to = reverse('index')
+    return HttpResponseRedirect(redirect_to)
 
 @admin_required
 def admin_index(request):
@@ -84,9 +92,6 @@ def aafbootstrap(request):
     new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
-    if new_user:
-        redirect_to = reverse('kg_profile_all_projects')
-        return HttpResponseRedirect(redirect_to)
     return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 
