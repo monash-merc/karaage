@@ -92,7 +92,10 @@ def aafbootstrap(request):
     new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
-    return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
+    redirect_to = reverse('samlredirect')
+    return HttpResponseRedirect(redirect_to)
+
+#    return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 
 @admin_required
