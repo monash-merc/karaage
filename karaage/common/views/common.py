@@ -30,6 +30,7 @@ from django.http import HttpResponseRedirect
 from karaage.common import is_admin
 from karaage.common.decorators import admin_required
 from karaage.common.models import LogEntry
+from karaage.common.forms import IdForm 
 from karaage.common.tables import LogEntryFilter, LogEntryTable
 from karaage.people.tables import PersonTable, GroupTable
 from karaage.people.models import Person, Group
@@ -87,14 +88,35 @@ def index(request):
         'karaage/common/index.html', context_instance=RequestContext(request))
 
 def aafbootstrap(request):
-    if settings.ADMIN_REQUIRED or is_admin(request):
-        return admin_index(request)
+    user = util.findUser(request)
+    if user:
+        redirect_to = reverse('samlredirect')
+        return HttpResponseRedirect(redirect_to)
+    ids = util.parsetUserId(request)
+    util.log(ids)
+    if ids:
+        util.log("Select username from ids")
+        form = IdForm(ids = ids)
+        if request.method == 'POST':
+            form = IdForm(request.POST)
+            id = request.POST.get('id')
+            util.log("ID: '%s'" %(id))
+            if id == "None":
+                id = None
+            new_user, error, person = util.aafbootstrap(request, id)
+            if error:
+                return
+            redirect_to = reverse('samlredirect')
+            return HttpResponseRedirect(redirect_to)
+        return render_to_response('karaage/common/aafid.html', {'form': form}, context_instance=RequestContext(request))        
+    else:
+        util.log("Not find ids")
+    person = util.searchPerson(request)
     new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
     redirect_to = reverse('samlredirect')
     return HttpResponseRedirect(redirect_to)
-
 #    return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
 
 

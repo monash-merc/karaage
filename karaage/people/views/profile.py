@@ -22,15 +22,17 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from karaage.common.decorators import login_required
 from karaage.people.models import Person
 from karaage.people.emails import send_reset_password_email
-from karaage.people.forms import PersonForm, PasswordChangeForm, PasswordChangeFormV2
+from karaage.people.forms import PersonForm, PasswordChangeForm, PasswordChangeFormV2, PasswordChangeFormSaml
 
 import karaage.common as common
 from karaage.common.forms import LoginForm
 import karaage.common.saml as saml
+from karaage.common.util import Util as util 
 
 
 def login(request, username=None):
@@ -200,23 +202,26 @@ def edit_profile(request):
 @login_required
 def password_change(request):
 
+    saml_session = False 
     person = request.user
-
+    if person.saml_id:
+        saml_session = True
     if request.POST:
-        form = PasswordChangeFormV2(data=request.POST, person=person)
-#        form = PasswordChangeForm(data=request.POST, person=person)
-
+        if saml_session:
+            form = PasswordChangeFormSaml(data=request.POST, person=person)
+        else:
+            form = PasswordChangeForm(data=request.POST, person=person)
         if form.is_valid():
             form.save()
             messages.success(request, "Password changed successfully")
             return HttpResponseRedirect(reverse('kg_profile'))
     else:
-        form = PasswordChangeFormV2(person=person)
-
-    return render_to_response(
-        'karaage/common/profile_password.html',
-        {'person': person, 'form': form},
-        context_instance=RequestContext(request))
+        if saml_session:
+            form = PasswordChangeFormSaml(person=person)
+            return render_to_response('karaage/common/profile_saml_password.html', {'person': person, 'form': form}, context_instance=RequestContext(request))
+        else:
+            form = PasswordChangeForm(person=person)
+            return render_to_response('karaage/common/profile_password.html', {'person': person, 'form': form}, context_instance=RequestContext(request))
 
 
 @login_required

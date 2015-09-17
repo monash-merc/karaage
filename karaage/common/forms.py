@@ -81,3 +81,14 @@ class CommentForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.CharField(label="Username", max_length=30)
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+class IdForm(forms.Form):
+     id = forms.ChoiceField(label = "Usernames", required=True)
+    
+     def __init__(self, *args, **kwargs):
+        ids = kwargs.pop('ids', None) 
+        if ids:
+            super(forms.Form, self).__init__(*args, **kwargs)
+            self.fields['id'].choices = ids
+    
+
