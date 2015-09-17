@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import
-import os, sys, random, string, traceback, datetime
+import os, sys, random, string, traceback, json, datetime
 from django.contrib.auth.models import User
 from django.db.models import Q
 from karaage.people.models import Person
@@ -83,6 +83,7 @@ class Util():
         random.seed = (os.urandom(1024))
         password = ''.join(random.choice(chars) for i in range(length))
         return password
+    
     @classmethod
     def findUsername(self, username):
         conflict = False 
@@ -105,14 +106,21 @@ class Util():
         return person 
     
     @classmethod
-    def aafbootstrap(self, request):
-        from karaage.institutes.models import Institute
+    def findUser(self, request):
+        user = None
+        d, error = self.parseMetadata(request)
+        if not error:
+            user = self.searchPerson(d["saml_id"])
+        return user
+
+    @classmethod
+    def parseMetadata(self, request):
         attr, error_message = self.parseShibAttributes(request)
-        new_user = False
         error = False
         if error_message:
             error = True
-            return new_user, error, None 
+            return attr, error
+
         d = {}
         d["title"] = ""
         d["first_name"] = attr['first_name']
@@ -123,22 +131,30 @@ class Util():
         d["supervisor"] = ""
         d["email"] = attr['email']
         d["username"] = self.getUsername(attr['full_name'], attr['last_name']) 
-        d['password'] = self.getPassword()
+        d['password'] = "" 
+#        d['password'] = self.getPassword()
         d["country"] = ""
-        if attr['telephone']:
-            d["telephone"] = attr['telephone'] 
-        else:
-            d["telephone"] = "99029757"
+        d["telephone"] = attr['telephone'] 
         d["mobile"] = ""
         d["fax"] = ""
         d["address"] = ""
         d["idp"] = attr['idp'] 
         d["short_name"] = attr['last_name'] 
         d['saml_id'] = attr['persistent_id']
+        return d, error
+
+    @classmethod
+    def aafbootstrap(self, request, id = None):
+        new_user = False
+        d, error = self.parseMetadata(request)
+        if error:
+            return new_user, error, None 
         person = self.searchPerson(d["saml_id"])
         if person:
             self.updateProfile(person, d)
         else:
+            if id:
+                d["username"] = id 
             person = self.addPerson(d)
             if person:
                 new_user = True  
@@ -151,6 +167,10 @@ class Util():
             p.institute = Institute.objects.get(saml_entityid=d['idp'])
             self.log("Update user %s profile" % d['username'])
             p.save()
+
+#    @classmethod
+#    def getId(self, username, email):
+        
 
     @classmethod
     def addPerson(self, d):
@@ -199,5 +219,27 @@ class Util():
             self.log("Insititute IDP %s does not exisit" %(entityId))
         return institute
 
+    @classmethod
+    def parsetUserId(self, request):
+        if not settings.USER_EXIST_ID_FILE:
+            self.log("User id file does not exist")
+            return None
+        filepaths = settings.USER_EXIST_ID_FILE
+        d, error = self.parseMetadata(request)
+        if error:
+            self.log("Failed to parse meta data")
+            return None 
+        tup = None
+        dict = {}
+        for filepath in filepaths:
+            with open(filepath) as data:
+                id_list = json.load(data)
+                for ids in id_list:
+                    if ids['email'].lower() == d['email'].lower():
+                        if not ids["username"] in dict: 
+                            dict[ids["username"]] = ids["username"]            
+        if dict: 
+            self.log("Find dict")
+            tup = tuple(dict.items())
+        return tup
             
-

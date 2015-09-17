@@ -1,0 +1,43 @@
+{% extends "base_site.html" %}
+{% load i18n staticfiles %}
+
+{% block content %}
+{% if form.errors and not form.non_field_errors and not form.this_is_the_login_form.errors %}
+<p class="errornote">
+{% blocktrans count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+</p>
+{% endif %}
+
+{% if form.non_field_errors or form.this_is_the_login_form.errors %}
+{% for error in form.non_field_errors|add:form.this_is_the_login_form.errors %}
+<p class="errornote">
+    {{ error }}
+</p>
+{% endfor %}
+{% endif %}
+
+{% if error %}
+<p class="errornote">
+    {{ error }}
+</p>
+{% endif %}
+
+<div id="content-main">
+<p>You have following existing IDs, you can either select one to be your new account username or select None, the system will pick a username up for your new account</p>
+<form action="" method="post" id="id-form">{% csrf_token %}
+  <div class="form-row">
+    {% load forms %}
+    {% if form.errors  or form.non_field_errors %}
+    <p class="errornote">Please correct the error{{ form.errors|pluralize }} below.</p>
+    {% endif %}
+    <fieldset class="aligned ()">
+    {{ form.non_field_errors }}
+    {% formfield form.id %}
+    </fieldset>
+  </div>
+  <div class="submit-row">
+      <input type="submit" value="Select" class="default" />
+  </div>
+</form>
+</div>
+{% endblock %}
