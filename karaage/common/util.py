@@ -221,10 +221,10 @@ class Util():
 
     @classmethod
     def parsetUserId(self, request):
-        if not settings.USER_EXIST_ID_FILE:
+        if not settings.USER_ID_FILES:
             self.log("User id file does not exist")
             return None
-        filepaths = settings.USER_EXIST_ID_FILE
+        filepaths = settings.USER_ID_FILES
         d, error = self.parseMetadata(request)
         if error:
             self.log("Failed to parse meta data")

@@ -27,7 +27,7 @@ from django.conf import settings
 from karaage.common.decorators import login_required
 from karaage.people.models import Person
 from karaage.people.emails import send_reset_password_email
-from karaage.people.forms import PersonForm, PasswordChangeForm, PasswordChangeFormV2, PasswordChangeFormSaml
+from karaage.people.forms import PersonForm, PasswordChangeForm, PasswordChangeFormSaml
 
 import karaage.common as common
 from karaage.common.forms import LoginForm

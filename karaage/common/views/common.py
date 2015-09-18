@@ -88,9 +88,9 @@ def index(request):
         'karaage/common/index.html', context_instance=RequestContext(request))
 
 def aafbootstrap(request):
+    redirect_to = reverse('samlredirect')
     user = util.findUser(request)
     if user:
-        redirect_to = reverse('samlredirect')
         return HttpResponseRedirect(redirect_to)
     ids = util.parsetUserId(request)
     util.log(ids)
@@ -98,15 +98,13 @@ def aafbootstrap(request):
         util.log("Select username from ids")
         form = IdForm(ids = ids)
         if request.method == 'POST':
-            form = IdForm(request.POST)
-            id = request.POST.get('id')
-            util.log("ID: '%s'" %(id))
-            if id == "None":
-                id = None
-            new_user, error, person = util.aafbootstrap(request, id)
+            if request.POST["Cancel"]:
+                new_user, error, person = util.aafbootstrap(request)
+            else:
+                id = request.POST.get('id')
+                new_user, error, person = util.aafbootstrap(request, id)
             if error:
                 return
-            redirect_to = reverse('samlredirect')
             return HttpResponseRedirect(redirect_to)
         return render_to_response('karaage/common/aafid.html', {'form': form}, context_instance=RequestContext(request))        
     else:
@@ -115,10 +113,7 @@ def aafbootstrap(request):
     new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
-    redirect_to = reverse('samlredirect')
     return HttpResponseRedirect(redirect_to)
-#    return render_to_response('karaage/common/index.html', context_instance=RequestContext(request))
-
 
 @admin_required
 def search(request):
