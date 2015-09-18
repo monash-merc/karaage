@@ -23,7 +23,7 @@
 {% endif %}
 
 <div id="content-main">
-<p>You have following existing IDs, you can either select one to be your new account username or select None, the system will pick a username up for your new account</p>
+<p>You have following existing IDs, you can either select one to be your new account username and press the select botton, or you can press cancel button to let system to pick up a username for you</p>
 <form action="" method="post" id="id-form">{% csrf_token %}
   <div class="form-row">
     {% load forms %}
@@ -36,6 +36,7 @@
     </fieldset>
   </div>
   <div class="submit-row">
+      <input type="submit" name="Cancel" value="Cancel" class="default" />
       <input type="submit" value="Select" class="default" />
   </div>
 </form>
