@@ -98,7 +98,7 @@ def aafbootstrap(request):
         util.log("Select username from ids")
         form = IdForm(ids = ids)
         if request.method == 'POST':
-            if request.POST["Cancel"]:
+            if request.POST.get("Cancel"):
                 new_user, error, person = util.aafbootstrap(request)
             else:
                 id = request.POST.get('id')
