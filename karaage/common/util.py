@@ -232,12 +232,13 @@ class Util():
         tup = None
         dict = {}
         for filepath in filepaths:
-            with open(filepath) as data:
-                id_list = json.load(data)
-                for ids in id_list:
-                    if ids['email'].lower() == d['email'].lower():
-                        if not ids["username"] in dict: 
-                            dict[ids["username"]] = ids["username"]            
+            os.path.isfile(filepath):
+                with open(filepath) as data:
+                    id_list = json.load(data)
+                    for ids in id_list:
+                        if ids['email'].lower() == d['email'].lower():
+                            if not ids["username"] in dict: 
+                                dict[ids["username"]] = ids["username"]            
         if dict: 
             self.log("Find dict")
             tup = tuple(dict.items())
