@@ -93,7 +93,6 @@ def aafbootstrap(request):
     if user:
         return HttpResponseRedirect(redirect_to)
     ids = util.parsetUserId(request)
-    util.log(ids)
     if ids:
         util.log("Select username from ids")
         form = IdForm(ids = ids)
