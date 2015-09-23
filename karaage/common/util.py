@@ -232,7 +232,7 @@ class Util():
         tup = None
         dict = {}
         for filepath in filepaths:
-            os.path.isfile(filepath):
+            if os.path.isfile(filepath):
                 with open(filepath) as data:
                     id_list = json.load(data)
                     for ids in id_list:
