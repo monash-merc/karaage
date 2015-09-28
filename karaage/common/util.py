@@ -249,10 +249,11 @@ class Util():
 
     @classmethod
     def parsetUserId(self, request):
-        if not settings.USER_ID_FILES:
+        if not settings.USER_ID_FILES and not settings.USER_ID_DIR:
             self.log("User id file does not exist")
             return None
-        filepaths = settings.USER_ID_FILES
+        filedir = settings.USER_ID_DIR 
+        filenames = settings.USER_ID_FILES
         d, error = self.parseMetadata(request)
         if error:
             self.log("Failed to parse meta data")
@@ -260,9 +261,9 @@ class Util():
         tup = None
         dict = {}
         username_list = []
-        for filepath in filepaths:
-            if os.path.isfile(filepath):
-                with open(filepath) as data:
+        for filename in filenames:
+            if os.path.isfile(filedir + "/" + filename):
+                with open(filedir + "/" + filename) as data:
                     id_list = json.load(data)
                     for ids in id_list:
                         if ids['email'].lower() == d['email'].lower():
