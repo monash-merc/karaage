@@ -63,6 +63,34 @@ class Util():
         commonNameLength = len(commonName)
         firstName = commonName[0 : commonNameLength - lastNameLength - 1]
         return firstName
+    
+    @classmethod
+    def getUniqueUsernameList(self, dict = {}):
+        udict = {}
+        for key, value in dict.items():
+            if not self.findUsername(value):
+                udict[key] = value
+        return udict
+
+    @classmethod
+    def getUniqueUsername(self, username, usernames = {}):
+        uname = username 
+        conflict = True
+        tail = 1
+        while conflict:
+            conflict = False 
+            for key, value in usernames.items(): 
+                if uname == value:
+                    uname = uname + str(tail)
+                    tail = tail + 1
+                    conflict = True
+                    break
+            if conflict == False:
+                if self.findUsername(uname):
+                    uname = uname + str(tail)
+                    tail = tail + 1
+                    conflict = True
+        return uname
 
     @classmethod
     def getUsername(self, commonName, lastName):
@@ -231,6 +259,7 @@ class Util():
             return None 
         tup = None
         dict = {}
+        username_list = []
         for filepath in filepaths:
             if os.path.isfile(filepath):
                 with open(filepath) as data:
@@ -241,6 +270,10 @@ class Util():
                                 dict[ids["username"]] = ids["username"]            
         if dict: 
             self.log("Find dict")
-            tup = tuple(dict.items())
+            uname = self.getUniqueUsername(d['username'], dict)
+            dict[uname] = uname
+            udict = self.getUniqueUsernameList(dict)
+            if udict:
+                tup = tuple(udict.items())
         return tup
             
