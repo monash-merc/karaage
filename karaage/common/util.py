@@ -248,7 +248,7 @@ class Util():
         return institute
 
     @classmethod
-    def parsetUserId(self, request):
+    def parseUserId(self, request):
         if not settings.USER_ID_FILES and not settings.USER_ID_DIR:
             self.log("User id file does not exist")
             return None
