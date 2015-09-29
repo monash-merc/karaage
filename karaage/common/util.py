@@ -276,5 +276,6 @@ class Util():
             udict = self.getUniqueUsernameList(dict)
             if udict:
                 tup = tuple(udict.items())
+                self.log("Create user id display content")
         return tup
             
