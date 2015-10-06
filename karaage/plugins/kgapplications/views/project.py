@@ -31,8 +31,10 @@ from karaage.people.models import Person
 from karaage.projects.models import Project
 from karaage.institutes.models import Institute
 from karaage.common import log, is_admin, saml
+from karaage.common.util import Util as util
+from karaage.machines.models import MachineCategory
 
-import json
+import json, traceback
 import six
 
 from ..models import ProjectApplication, Applicant
@@ -892,3 +894,106 @@ def new_application(request):
             'kgapplications/project_common_invite_authenticated.html',
             {},
             context_instance=RequestContext(request))
+
+@login_required
+def application_join_project(request, token=None):
+    user = request.user
+    if request.user.is_authenticated():
+        application = ProjectApplication()
+        application.applicant = request.user
+    else:
+        application = get_object_or_404(ProjectApplication, secret_token=token, state__in=[Application.NEW, Application.OPEN], expires__gt=datetime.datetime.now())
+
+    institute = application.applicant.institute
+    term_error = leader_list = project_error = project = q_project = leader = None
+    terms = ""
+    project_list = False
+    qs = request.META['QUERY_STRING']
+
+    if request.method == 'POST':
+        if 'project' in request.REQUEST:
+            try:
+                project = Project.objects.get(pid = request.POST['project'])
+                if project:
+                    members = project.group.members.filter(pk = user.pk)
+                    if members.count() > 0:
+                        messages.info(request, "You are already a member of the project %s" % project.pid)
+                        return HttpResponseRedirect(reverse('index'))
+                    application.project = project
+                    application.state = ProjectApplication.WAITING_FOR_LEADER
+                    application.needs_account = True
+                    application.save()
+                    messages.info(request, "Your request for joining project %s is pending for approving" % project.pid)
+                    return HttpResponseRedirect(reverse('index'))
+            except:
+                project_error = True
+        else:
+            return HttpResponseRedirect('%s?%s&error=true' % (reverse('application_join_project'), qs))
+
+    if 'error' in request.REQUEST:
+        project_error = True
+    
+    if 'project_pid' in request.REQUEST:
+        q_project = False
+        try:
+            q_project = Project.active.get(pid__icontains=request.GET['project_pid'])
+            leaders_list = q_project.leaders
+        except:
+            term_error = "Please enter at lease three characters for search."
+            leader_list = False
+            pass
+    if 'leader' in request.REQUEST:
+        leader = Person.objects.get(pk=request.GET['leader'])
+        project_list = leader.leaders.filter(is_active=True)
+
+    if project_list:
+        if project_list.count() == 1:
+            project = project_list[0]
+            project_list = False
+                                   
+    return render_to_response('kgapplications/request_join_project.html', {'term_error': term_error, 'terms': terms, 'leader_list': leader_list, 'project_error': project_error, 'project_list': project_list, 'project': project, 'q_project': q_project, 'leader': leader, 'application': application}, context_instance=RequestContext(request))
+
+def application_done(request, token):
+    application = get_object_or_404(Application, secret_token=token)
+    application = application.get_object()
+    return render_to_response('kgapplications/projectapplication_done.html', {'application': application}, context_instance=RequestContext(request))
+
+@login_required
+def application_apply_project(request):
+    application_form = forms.NewProjectApplicationForm 
+    mcs = MachineCategory.objects.all()
+    application = ProjectApplication()
+    application.save()
+    application.machine_categories = mcs
+    applicant = request.user
+    institute = applicant.institute 
+    if request.method == 'POST':
+        form = application_form(request.POST, instance = application)
+        if form.is_valid():
+            application = form.save(commit=False)
+            mc = MachineCategory.objects.get_default()
+            if mc:
+                mcs = []
+                mcs.append(mc)
+                application.machine_categories = mcs
+                application.applicant = applicant
+                application.make_leader = True 
+                application.needs_account = True
+                application.state = ProjectApplication.WAITING_FOR_DELEGATE
+                application.institute = institute
+                application.institute.delegates.filter(institutedelegate__send_email = True, is_active = True)
+
+                application.save()
+# Todo: check if send emails works or not
+                messages.info(request, "Thanks %s, your new project application is pending for institution delegates approving" %(applicant.username))
+                return HttpResponseRedirect(reverse('index'))
+            return HttpResponseBadRequest("<h1>Bad Post</h1>") 
+        else:
+            return HttpResponseBadRequest("<h1>Bad Request</h1>") 
+    else:
+        try:
+            form = application_form(instance=application, initial={'institute': institute})
+        except:
+            util.log("Exception: %s" %(traceback.format_exc()))
+    return render_to_response('kgapplications/request_new_project.html', {'form': form, 'application': application}, context_instance=RequestContext(request))
+

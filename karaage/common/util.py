@@ -16,6 +16,8 @@ from karaage.people.models import Person, Group
 
 logger = logging.getLogger(__name__)
 
+USER_LOG_FILE = "/root/hpcid_users.log"
+
 class Util(): 
 
     def __init(self):
@@ -25,6 +27,11 @@ class Util():
     def log(self, message):
         logger.debug(message)
 
+    @classmethod
+    def user_log(self, message):
+        with open(USER_LOG_FILE, "a") as log:
+            log.write(message)
+        
     @classmethod
     def parseShibAttributes(self, request):
         shib_attrs = {}
@@ -169,6 +176,7 @@ class Util():
         d["idp"] = attr['idp'] 
         d["short_name"] = attr['last_name'] 
         d['saml_id'] = attr['persistent_id']
+        d['principal_name'] = attr['principal_name']
         return d, error
 
     @classmethod
@@ -186,6 +194,8 @@ class Util():
             person = self.addPerson(d)
             if person:
                 new_user = True  
+                user_log = d["username"] + " " + d['email'] + " " + d['principal_name'] + " " + d['saml_id'] + "\n"
+                self.user_log(user_log)
         return new_user, error, person 
 
     @classmethod

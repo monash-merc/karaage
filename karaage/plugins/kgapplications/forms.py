@@ -205,7 +205,9 @@ class NewProjectApplicationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(NewProjectApplicationForm, self).__init__(*args, **kwargs)
-        self.fields['machine_categories'].required = True
+        # JH disable machine categories as per CH request 
+        self.fields['machine_categories'].required = False 
+        # self.fields['machine_categories'].required = True
 
     class Meta:
         model = ProjectApplication
