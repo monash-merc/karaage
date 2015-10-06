@@ -22,13 +22,5 @@
     <h2>Projects I am a member of</h2>
     {% render_table project_list %}
 
-    {% is_for_each_app_include_empty "profile_project_detail_tools.html" as is_empty %}
-    {% if not is_empty %}
-    <div class="object-tools">
-        <ul>
-            {% for_each_app_include "profile_project_detail_tools.html" %}
-        </ul>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

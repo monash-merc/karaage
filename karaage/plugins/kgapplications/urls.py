@@ -44,7 +44,8 @@ urlpatterns = patterns(
         'project.send_invitation', name='kg_application_invite'),
     url(r'^project/invite/(?P<project_id>\d+)/$',
         'project.send_invitation', name='kg_application_invite'),
-
+    url(r'^project/joinproject/$', 'project.application_join_project', name='kg_application_join_project'),
+    url(r'^project/applyproject/$', 'project.application_apply_project', name='kg_application_apply_project'),
     # this must come last
     url(r'^(?P<token>[-.\w]+)/$',
         'common.application_unauthenticated',

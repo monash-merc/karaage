@@ -26,8 +26,8 @@
         <div class="module object-tools">
          <h2>Welcome {{ user.username }}, please select following buttons to join existing projects or apply for new projects</h2>
            <ul>
-             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_apply_project' %}">Apply for new projects</a></li>
-             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_join_project' %}">Join existing projects</a></li>
+             <li><a href="{% url 'kg_application_apply_project' %}">Apply for new projects</a></li>
+             <li><a href="{% url 'kg_application_join_project' %}">Join existing projects</a></li>
              <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_password' %}">Change linux password</a></li>
         </ul>
       </div>
