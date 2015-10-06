@@ -194,7 +194,7 @@ class Util():
             person = self.addPerson(d)
             if person:
                 new_user = True  
-                user_log = d["username"] + " " + d['email'] + " " + d['principal_name'] + " " + d['saml_id'] + "\n"
+                user_log = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M") + ": " + d["username"] + " " + d['email'] + " " + d['principal_name'] + " " + d['saml_id'] + "\n"
                 self.user_log(user_log)
         return new_user, error, person 
 
