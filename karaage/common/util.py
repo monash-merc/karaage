@@ -16,7 +16,7 @@ from karaage.people.models import Person, Group
 
 logger = logging.getLogger(__name__)
 
-USER_LOG_FILE = "/root/hpcid_users.log"
+USER_LOG_FILE = "/var/local/user_log/hpcid_users.log"
 
 class Util(): 
 
@@ -28,10 +28,17 @@ class Util():
         logger.debug(message)
 
     @classmethod
+    def warning(self, message):
+        logger.error(message)
+
+    @classmethod
     def user_log(self, message):
-        with open(USER_LOG_FILE, "a") as log:
-            log.write(message)
-        
+        if os.access(os.path.dirname(USER_LOG_FILE), os.W_OK):
+            with open(USER_LOG_FILE, "a") as log:
+                log.write(message)
+        else:
+            self.warning("Disable generating user list log") 
+
     @classmethod
     def parseShibAttributes(self, request):
         shib_attrs = {}
@@ -224,7 +231,7 @@ class Util():
                     person.save()
                 self.log("Create user account %s" %(person.username))
         except:
-            self.log("Failed to add person exception %s" % traceback.format_exc())
+            self.warning("Failed to add person exception %s" % traceback.format_exc())
         return person
 
     @classmethod
@@ -238,7 +245,7 @@ class Util():
                     if members.count() > 0:
                         member = True
         except:
-            self.log("Exception to search member in project: %s" % traceback.format_exc())
+            self.warning("Exception to search member in project: %s" % traceback.format_exc())
         return member
 
     @classmethod
@@ -254,7 +261,7 @@ class Util():
         try:
             institute = Institute.objects.get(saml_entityid=entityId)
         except Institute.DoesNotExist:
-            self.log("Insititute IDP %s does not exisit" %(entityId))
+            self.warning("Insititute IDP %s does not exisit" %(entityId))
         return institute
 
     @classmethod
