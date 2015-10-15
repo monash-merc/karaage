@@ -27,9 +27,9 @@
         </div>
         {% block usertools %}
         <div id="user-tools">
-            {% trans 'Welcome,' %}
+            {% trans 'Welcome' %}
             {% if user.is_active %}
-            <strong>{% firstof user.get_short_name user.username %}</strong>.
+            <strong>{% firstof user.get_full_name user.username %} (Your username: {{ user.username }})</strong>
             {% else %}
             <strong>{% trans 'Guest' %}</strong>
             {% endif %}
@@ -39,10 +39,8 @@
                 {% if docsroot %}
                     <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
                 {% endif %}
-                <a href="{% url 'kg_profile_password' %}">{% trans 'Change password' %}</a> /
-                <a href="{% url 'kg_profile_logout' %}">{% trans 'Log out' %}</a>
                 {% else %}
-                <a href="{% url 'kg_profile_login' %}{% url_with_param next=request.path %}">{% trans 'Log in' %}</a>
+                <a href="{% url 'samlredirect' %}{% url_with_param next=request.path %}">{% trans 'Log in' %}</a>
                 {% endif %}
             {% endblock %}
         </div>

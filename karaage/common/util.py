@@ -88,18 +88,13 @@ class Util():
 
     @classmethod
     def getUniqueUsername(self, username, usernames = {}):
-        uname = username 
-        conflict = True
-        tail = 1
-        while conflict:
-            conflict = False 
-            for key, value in usernames.items(): 
-                if uname == value:
-                    uname = uname + str(tail)
-                    tail = tail + 1
-                    conflict = True
-                    break
-            if conflict == False:
+        uname = None 
+        if not username in usernames:
+            uname = username
+            tail = 1
+            conflict = True
+            while conflict:
+                conflict = False
                 if self.findUsername(uname):
                     uname = uname + str(tail)
                     tail = tail + 1
@@ -289,7 +284,8 @@ class Util():
         if dict: 
             self.log("Find dict")
             uname = self.getUniqueUsername(d['username'], dict)
-            dict[uname] = uname
+            if uname:
+                dict[uname] = uname
             udict = self.getUniqueUsernameList(dict)
             if udict:
                 tup = tuple(udict.items())
