@@ -144,39 +144,44 @@ def add_edit_institute(request, institute_id=None):
         institute = None
         flag = 1
 
-    delegate_formset = inlineformset_factory(
-        Institute, InstituteDelegate, form=DelegateForm, extra=3)
-
+    delegate_formset = inlineformset_factory(Institute, InstituteDelegate, form=DelegateForm, extra=3)
     if request.method == 'POST':
         form = InstituteForm(request.POST, instance=institute)
-        delegate_formset = delegate_formset(request.POST, instance=institute)
+# JH: Fix bugs: (1) delegate_formset replaced by delegateformset on 13 October 2015; (2) Fixed to add delegates 
+        delegateformset = delegate_formset(request.POST, instance=institute)
 
-        if form.is_valid() and delegate_formset.is_valid():
-            institute = form.save()
+        if form.is_valid():
             if flag == 1:
-                delegate_formset = delegate_formset(
+                institute = form.save(commit = False)
+                delegateformset = delegate_formset(
                     request.POST, instance=institute)
-                delegate_formset.is_valid()
-            delegate_formset.save()
+                if delegateformset.is_valid():
+                    institute.save()
+                    delegateformset.save()
+                    
+            elif flag == 2:
+                delegateformset = delegate_formset(request.POST, instance=institute)
+                if delegateformset.is_valid():
+                    delegateformset.save()
+                    
             return HttpResponseRedirect(institute.get_absolute_url())
     else:
         form = InstituteForm(instance=institute)
-        delegate_formset = delegate_formset(instance=institute)
+        delegateformset = delegate_formset(instance=institute)
 
     media = form.media
-    for dform in delegate_formset.forms:
+    for dform in delegateformset.forms:
         media = media + dform.media
 
     return render_to_response(
         'karaage/institutes/institute_form.html',
         {'institute': institute, 'form': form,
-            'media': media, 'delegate_formset': delegate_formset},
+            'media': media, 'delegate_formset': delegateformset},
         context_instance=RequestContext(request))
 
 
 @admin_required
 def institutequota_add(request, institute_id):
-
     institute = get_object_or_404(Institute, pk=institute_id)
 
     institute_chunk = InstituteQuota()

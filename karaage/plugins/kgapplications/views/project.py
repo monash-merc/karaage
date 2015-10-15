@@ -43,6 +43,7 @@ from . import base, states
 
 
 def _get_applicant_from_saml(request):
+    util.log("_get_applicant_from_saml")
     attrs, _ = saml.parse_attributes(request)
     saml_id = attrs['persistent_id']
     try:
@@ -69,6 +70,7 @@ class StateWithSteps(base.State):
         super(StateWithSteps, self).__init__()
 
     def add_step(self, step, step_id):
+        util.log("StateWithSteps add_step")
         """ Add a step to the list. The first step added becomes the initial
         step. """
         assert step_id not in self._steps
@@ -78,6 +80,7 @@ class StateWithSteps(base.State):
         self._order.append(step_id)
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateWithSteps view")
         """ Process the view request at the current step. """
 
         # if the user is not the applicant, the steps don't apply.
@@ -165,6 +168,7 @@ class StateStepIntroduction(Step):
     name = "Read introduction"
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateStepIntroduction view")
         """ Django view method. """
         if application.content_type.model == 'applicant':
             if not application.applicant.email_verified:
@@ -190,6 +194,7 @@ class StateStepShibboleth(Step):
     name = "Invitation sent"
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateStepShibboleth view")
         """ Django view method. """
         status = None
         applicant = application.applicant
@@ -313,6 +318,7 @@ class StateStepApplicant(Step):
     name = "Open"
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateStepApplicant view")
         """ Django view method. """
         # Get the appropriate form
         status = None
@@ -406,6 +412,7 @@ class StateStepProject(base.State):
         return resp
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateStepProject view")
         """ Django view method. """
         if 'ajax' in request.POST:
             resp = self.handle_ajax(request, application)
@@ -531,6 +538,7 @@ class StateApplicantEnteringDetails(StateWithSteps):
         self.add_step(StateStepProject(), 'project')
 
     def view(self, request, application, label, roles, actions):
+        util.log("StateApplicantEnteringDetails view")
         """ Process the view request at the current step. """
 
         # if user is logged and and not applicant, steal the
@@ -615,9 +623,11 @@ class StateWaitingForLeader(states.StateWaitingForApproval):
     authorised_text = "a project leader"
 
     def get_authorised_persons(self, application):
+        util.log("StateWaitingForLeader get_authorised_persons")
         return application.project.leaders.filter(is_active=True)
 
     def get_approve_form(self, request, application, roles):
+        util.log("StateWaitingForLeader get_approve_form")
         return forms.approve_project_form_generator(application, roles)
 
 
@@ -628,10 +638,12 @@ class StateWaitingForDelegate(states.StateWaitingForApproval):
     authorised_text = "an institute delegate"
 
     def get_authorised_persons(self, application):
+        util.log("StateWaitingForDelegate get_authorised_persons")
         return application.institute.delegates \
             .filter(institutedelegate__send_email=True, is_active=True)
 
     def get_approve_form(self, request, application, roles):
+        util.log("StateWaitingForDelegate get_approve_form")
         return forms.approve_project_form_generator(application, roles)
 
 
@@ -642,17 +654,21 @@ class StateWaitingForAdmin(states.StateWaitingForApproval):
     authorised_text = "an administrator"
 
     def get_authorised_persons(self, application):
+        util.log("StateWaitingForAdmin get_authorised_persons")
         return Person.objects.filter(is_admin=True, is_active=True)
 
     def check_authorised(self, request, application, roles):
+        util.log("StateWaitingForAdmin check_authorised")
         """ Check the person's authorization. """
         return 'is_admin' in roles
 
     def get_approve_form(self, request, application, roles):
+        util.log("StateWaitingForAdmin get_approve_form")
         return forms.admin_approve_project_form_generator(
             application, roles)
 
     def get_request_email_link(self, application):
+        util.log("StateWaitingForAdmin get_request_email_link")
         link, is_secret = base.get_admin_email_link(application)
         return link, is_secret
 
@@ -727,6 +743,7 @@ class TransitionSplit(base.Transition):
 
 
 def get_application_state_machine():
+    util.log("get_application_state_machine")
     """ Get the default state machine for applications. """
     open_transition = states.TransitionOpen(on_success='O')
     split = TransitionSplit(
@@ -744,11 +761,11 @@ def get_application_state_machine():
     state_machine.add_state(
         StateWaitingForDelegate(), 'D',
         {'cancel': 'R', 'approve': 'K', 'duplicate': 'DUP', })
+# JH remove set password
     state_machine.add_state(
         StateWaitingForAdmin(), 'K',
-        {'cancel': 'R', 'duplicate': 'DUP',
-            'approve': states.TransitionApprove(
-                on_password_needed='P', on_password_ok='C', on_error="R")})
+        {'cancel': 'R', 'duplicate': 'DUP', 'approve': 'C'})
+#        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='P', on_password_ok='C', on_error="R")})
     state_machine.add_state(
         states.StatePassword(), 'P',
         {'submit': 'C', })
@@ -778,11 +795,13 @@ def get_application_state_machine():
 
 
 def register():
+    util.log("register")
     base.setup_application_type(
         ProjectApplication, get_application_state_machine())
 
 
 def get_applicant_from_email(email):
+    util.log("get_applicant_from_email")
     try:
         applicant = Person.active.get(email=email)
         existing_person = True
@@ -793,6 +812,7 @@ def get_applicant_from_email(email):
 
 
 def _send_invitation(request, project):
+    util.log("_send_invitation")
     """ The logged in project leader OR administrator wants to invite somebody.
     """
     form = forms.InviteUserApplicationForm(request.POST or None)
@@ -824,6 +844,7 @@ def _send_invitation(request, project):
 
 @login_required
 def send_invitation(request, project_id=None):
+    util.log("send_invitation")
     """ The logged in project leader wants to invite somebody to their project.
     """
 
@@ -845,6 +866,7 @@ def send_invitation(request, project_id=None):
 
 
 def new_application(request):
+    util.log("new_application")
     """ A new application by a user to start a new project. """
     # Note default kgapplications/index.html will display error if user logged
     # in.
@@ -980,7 +1002,10 @@ def application_apply_project(request):
                 application.make_leader = True 
                 application.needs_account = True
                 application.state = ProjectApplication.WAITING_FOR_DELEGATE
-                application.institute = institute
+                institute_name = request.POST.get('institute')
+                util.log("Institute name = '%s'" %(institute_name))
+                insititute = Institute.objects.get(name = institute_name)
+                application.institute = insititute 
                 application.institute.delegates.filter(institutedelegate__send_email = True, is_active = True)
 
                 application.save()
@@ -992,8 +1017,51 @@ def application_apply_project(request):
             return HttpResponseBadRequest("<h1>Bad Request</h1>") 
     else:
         try:
+            institute_list = Institute.objects.all()
+            institute_dic = {}
+            institutes = None
+            for i in institute_list:
+                if i.is_active and not i.saml_entityid:
+                    institute_dic[i.name] = i.name    
+                if institute_dic:
+                    institutes = tuple(institute_dic.items())
+                if institutes:
+                    institute_form = forms.InstituteForm(institutes = institutes)
             form = application_form(instance=application, initial={'institute': institute})
         except:
             util.log("Exception: %s" %(traceback.format_exc()))
-    return render_to_response('kgapplications/request_new_project.html', {'form': form, 'application': application}, context_instance=RequestContext(request))
+    return render_to_response('kgapplications/request_new_project.html', {'form': form, 'application': application, 'institute_form': institute_form}, context_instance=RequestContext(request))
+
+@login_required
+def application_join_mcc(request, token=None):
+    user = request.user
+    if request.user.is_authenticated():
+        application = ProjectApplication()
+        application.applicant = request.user
+    else:
+        application = get_object_or_404(ProjectApplication, secret_token=token, state__in=[Application.NEW, Application.OPEN], expires__gt=datetime.datetime.now())
+
+    institute = application.applicant.institute
+    term_error = leader_list = project_error = project = q_project = leader = None
+    terms = ""
+    project_list = False
+    qs = request.META['QUERY_STRING']
+
+    try:
+	project = Project.objects.get(pid = "pMcc2")
+	if project:
+	    members = project.group.members.filter(pk = user.pk)
+	    if members.count() > 0:
+		messages.info(request, "You are already a member of the project %s" % project.pid)
+		return HttpResponseRedirect(reverse('index'))
+	    application.project = project
+	    application.state = ProjectApplication.WAITING_FOR_LEADER
+	    application.needs_account = True
+	    application.save()
+	    messages.info(request, "Your request for joining MCC project %s is pending for approving" % project.pid)
+	    return HttpResponseRedirect(reverse('index'))
+    except:
+	project_error = True
+    return HttpResponseRedirect('%s?%s&error=true' % (reverse('kg_application_join_mcc'), qs))
+
 

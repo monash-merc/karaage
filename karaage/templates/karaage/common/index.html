@@ -24,12 +24,25 @@
     {% else %}
       {% if user.is_authenticated %}
         <div class="module object-tools">
-         <h2>Welcome {{ user.username }}, please select following buttons to join existing projects or apply for new projects</h2>
-           <ul>
-             <li><a href="{% url 'kg_application_apply_project' %}">Apply for new projects</a></li>
-             <li><a href="{% url 'kg_application_join_project' %}">Join existing projects</a></li>
-             <li><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_password' %}">Change linux password</a></li>
-        </ul>
+         <h3>Welcome {{ user.username }}, please select following buttons to join existing projects or apply for new projects</h3>
+           <table>
+             <tr>
+               <th><a href="{% url 'kg_application_join_mcc' %}">Join MCC project</a></th>
+               <th>To join MCC projet</th>
+             </tr>
+             <tr>
+               <th><a href="{% url 'kg_application_apply_project' %}">Create project group</a></th>
+               <th>To apply new projet group</th>
+             </tr>
+             <tr>
+               <th><a href="{% url 'kg_application_join_project' %}">Join existing projects</a></th>
+               <th>To join exising project</th>
+             </tr>
+             <tr>
+               <th><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_password' %}">Change linux password</a></th>
+               <th>To change your HPC posix account password. Note, HPC posix account password is different to your AAF password or your institutional IDP password. Changing HPC posix account password affects only to your HPC accounts.</th>
+             </tr>
+        </table>
       </div>
       {% else %}
         <div class="module">
