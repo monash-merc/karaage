@@ -208,6 +208,7 @@ class NewProjectApplicationForm(forms.ModelForm):
         # JH disable machine categories as per CH request 
         self.fields['machine_categories'].required = False 
         # self.fields['machine_categories'].required = True
+#        self.fields['institutes'].required = True
 
     class Meta:
         model = ProjectApplication
@@ -388,7 +389,8 @@ class PersonVerifyPassword(forms.Form):
 
     def __init__(self, person, *args, **kwargs):
         self.person = person
-        super(PersonVerifyPassword, self).__init__(*args, **kwargs)
+# JH
+#        super(PersonVerifyPassword, self).__init__(*args, **kwargs)
 
     def clean_password(self):
         password = self.cleaned_data['password']
@@ -427,3 +429,13 @@ class ApplicantReplace(forms.Form):
         if replace_applicant is not None:
             self.application.applicant = replace_applicant
             self.application.save()
+
+class InstituteForm(forms.Form):
+    institute = forms.ChoiceField(label = "Institutes", required=True)
+    
+    def __init__(self, *args, **kwargs):
+        institutes = kwargs.pop('institutes', None)    
+        if institutes:
+            super(forms.Form, self).__init__(*args, **kwargs)
+            self.fields['institute'].choices = institutes 
+    
