@@ -98,7 +98,7 @@ def aafbootstrap(request):
         form = IdForm(ids = ids)
         if request.method == 'POST':
             if request.POST.get("Cancel"):
-                HttpResponseRedirect("/") 
+                return HttpResponseRedirect("/") 
             else:
                 id = request.POST.get('id')
                 new_user, error, person = util.aafbootstrap(request, id)
