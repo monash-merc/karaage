@@ -1,8 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    font-size: 11px;
-    font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+    font-size: 13px;
+    font-family: Arial,sans-serif;
     color: #333;
     background: #fff;
 }
@@ -54,13 +54,14 @@ h1 {
 h2 {
     font-size: 16px;
     margin: 1em 0 .5em 0;
+    color: #ffffff;
 }
 
 h3 {
     font-size: 14px;
     margin: .8em 0 .3em 0;
-    color: #666;
-    font-weight: bold;
+    color: #ffffff;
+    font-weight: normal;
 }
 
 h4 {
@@ -111,7 +112,7 @@ blockquote {
 }
 
 code, pre {
-    font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
+    font-family: Arial, sans-serif;
     background: inherit;
     color: #666;
 }
@@ -178,18 +179,19 @@ td, th {
     border: 1px solid #ddd;
     vertical-align: top;
     padding: 5px;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 table.keyvalue th {
     width: 100px;
 }
 
+/* JH */
 th {
     text-align: left;
-    font-weight: bold;
-    color: #333;
-    background: #7CA0A0;
+    font-weight: normal;
+    color: #0;
+    background: #FFFFFF;
 }
 
 tbody tr:nth-child(even) {background: #DDD}
@@ -236,7 +238,7 @@ input, textarea, select, .form-row p {
     margin: 2px 0;
     padding: 2px 3px;
     vertical-align: middle;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: normal;
 }
 
@@ -266,7 +268,7 @@ textarea {
 .button.default, input[type=submit].default, input[type=button].default {
     border: 2px solid #5b80b2;
     background: #7CA0C7 url(../img/default-bg.gif) bottom repeat-x;
-    font-weight: bold;
+    font-weight: normal;
     color: white;
 }
 
@@ -311,21 +313,21 @@ textarea {
     margin-top: 0;
     margin-bottom: 4px;
     padding: 2px 5px 3px 5px;
-    font-size: 11px;
+    font-size: 15px;
     text-align: left;
     font-weight: bold;
-    background: #7CA0C7;
-    color: #666;
+    background: #094c93;
+    color: #ffffff;
 }
 
 .module h3 {
     margin-top: 10px;
     margin-bottom: 2px;
     padding: 2px 5px 3px 5px;
-    font-size: 11px;
+    font-size: 13px;
     text-align: left;
     font-weight: bold;
-    background-color: #C7C7A0;
+    background-color: #094c93;
 }
 
 
@@ -337,13 +339,17 @@ ul.messagelist {
     margin: 0;
 }
 
+/* JH message line */
 ul.messagelist li {
     display: block;
     padding: 4px 5px 4px 25px;
     margin: 0 0 3px 0;
     border-bottom: 1px solid #ddd;
     color: #666;
+    background: #f2f287 url(../img/icon_success.gif) 5px .3em no-repeat;
+/*
     background: #ffc url(../img/icon_success.gif) 5px .3em no-repeat;
+*/
 }
 
 ul.messagelist li.warning{
@@ -472,14 +478,15 @@ div.breadcrumbs {
     margin-bottom: 2px;
 }
 
+/* JH */
 .object-tools a {
     display: block;
     width: 100px;
     height: 30px;
     padding: 4px 4px 4px 20px;
     vertical-align: bottom;
-    color: #333;
-    background: #bbb 4px 4px;
+    color: #FFFFFF;
+    background: #939598 4px 4px;
 }
 
 .object-tools a.active {
@@ -496,10 +503,11 @@ div.breadcrumbs {
     width: 100%;
 }
 
+/* JH menu button */
 #content-related .object-tools a {
     width: auto;
-    color: #333;
-    background-color: #eee;
+    color: #FFFFFF;
+    background-color: #939598;
 }
 
 #content-related .object-tools a.active {
@@ -579,8 +587,8 @@ div.breadcrumbs {
 /* HEADER */
 
 #header {
-    background: #417690;
-    color: #ffc;
+    background: #094C93;
+    color: #ffffff;
     overflow: hidden;
 }
 
@@ -597,7 +605,7 @@ div.breadcrumbs {
     font-size: 18px;
     margin: 8px 0;
     font-weight: normal;
-    color: #f4f379;
+    color: #ffffff;
 }
 
 #branding h2 {
@@ -605,7 +613,7 @@ div.breadcrumbs {
     font-size: 14px;
     margin: -8px 0 8px 0;
     font-weight: normal;
-    color: #ffc;
+    color: #ffffff;
 }
 
 #user-tools {
@@ -628,8 +636,8 @@ div.breadcrumbs {
 }
 
 #content-related .module h2 {
-    background: #C7C7A0;
-    color: #666;
+    background: #094c93;
+    color: #ffffff;
 }
 
 /* OTHER */

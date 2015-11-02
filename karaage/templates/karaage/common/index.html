@@ -27,20 +27,21 @@
          <h3>Welcome {{ user.username }}, please select following buttons to join existing projects or apply for new projects</h3>
            <table>
              <tr>
-               <th><a href="{% url 'kg_application_join_mcc' %}">Join MCC project</a></th>
-               <th>To join MCC projet</th>
+               <th><a href="{% url 'kg_application_join_mcc' %}">Use MonARCH</a></th>
+               <th>Use this option to apply for acces to the Monash Advanced Research Cloud Hybrid (the successor to the Monash Campus Cluster)</th>
              </tr>
              <tr>
                <th><a href="{% url 'kg_application_apply_project' %}">Create project group</a></th>
-               <th>To apply new projet group</th>
+               <th>Apply for a new project group. This provides you a project space (500GB) to share files with colleagues. Only staff can create project
+spaces</th>
              </tr>
              <tr>
                <th><a href="{% url 'kg_application_join_project' %}">Join existing projects</a></th>
-               <th>To join exising project</th>
+               <th>To join existing project groups</th>
              </tr>
              <tr>
                <th><a class="{% active request "profile/projects/" %}" href="{% url 'kg_profile_password' %}">Change linux password</a></th>
-               <th>To change your HPC posix account password. Note, HPC posix account password is different to your AAF password or your institutional IDP password. Changing HPC posix account password affects only to your HPC accounts.</th>
+               <th>This process changes your Monash eResearch Centre account password. Your HPC account password is not related to your AAF password or your institutional IDP password.</th>
              </tr>
         </table>
       </div>
