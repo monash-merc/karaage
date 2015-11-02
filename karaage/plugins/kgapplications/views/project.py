@@ -761,11 +761,10 @@ def get_application_state_machine():
     state_machine.add_state(
         StateWaitingForDelegate(), 'D',
         {'cancel': 'R', 'approve': 'K', 'duplicate': 'DUP', })
-# JH remove set password
+# JH no set password
     state_machine.add_state(
         StateWaitingForAdmin(), 'K',
         {'cancel': 'R', 'duplicate': 'DUP', 'approve': 'C'})
-#        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='P', on_password_ok='C', on_error="R")})
     state_machine.add_state(
         states.StatePassword(), 'P',
         {'submit': 'C', })
@@ -1048,7 +1047,7 @@ def application_join_mcc(request, token=None):
     qs = request.META['QUERY_STRING']
 
     try:
-	project = Project.objects.get(pid = "pMcc2")
+	project = Project.objects.get(pid = "monarch")
 	if project:
 	    members = project.group.members.filter(pk = user.pk)
 	    if members.count() > 0:
