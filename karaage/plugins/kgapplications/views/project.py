@@ -761,10 +761,10 @@ def get_application_state_machine():
     state_machine.add_state(
         StateWaitingForDelegate(), 'D',
         {'cancel': 'R', 'approve': 'K', 'duplicate': 'DUP', })
-# JH no set password
+# JH todo: set no password
     state_machine.add_state(
         StateWaitingForAdmin(), 'K',
-        {'cancel': 'R', 'duplicate': 'DUP', 'approve': 'C'})
+        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='P', on_password_ok='C', on_error="R")})
     state_machine.add_state(
         states.StatePassword(), 'P',
         {'submit': 'C', })
@@ -1040,27 +1040,31 @@ def application_join_mcc(request, token=None):
     else:
         application = get_object_or_404(ProjectApplication, secret_token=token, state__in=[Application.NEW, Application.OPEN], expires__gt=datetime.datetime.now())
 
-    institute = application.applicant.institute
-    term_error = leader_list = project_error = project = q_project = leader = None
+    term_error = None
+    leader_list = None
+    project_error = None
+    project = None
+    q_project = None
+    leader = None
     terms = ""
     project_list = False
     qs = request.META['QUERY_STRING']
 
     try:
-	project = Project.objects.get(pid = "monarch")
-	if project:
-	    members = project.group.members.filter(pk = user.pk)
-	    if members.count() > 0:
-		messages.info(request, "You are already a member of the project %s" % project.pid)
-		return HttpResponseRedirect(reverse('index'))
-	    application.project = project
-	    application.state = ProjectApplication.WAITING_FOR_LEADER
-	    application.needs_account = True
-	    application.save()
-	    messages.info(request, "Your request for joining MCC project %s is pending for approving" % project.pid)
-	    return HttpResponseRedirect(reverse('index'))
+        project = Project.objects.get(pid = "monarch")
+        if project:
+            members = project.group.members.filter(pk = user.pk)
+            if members.count() > 0:
+                messages.info(request, "You are already a member of the project %s" % project.pid)
+                return HttpResponseRedirect(reverse('index'))
+            application.project = project
+            application.state = ProjectApplication.WAITING_FOR_LEADER
+            application.needs_account = True
+            application.save()
+            messages.info(request, "Your request for joining MCC project %s is pending for approving" % project.pid)
+            return HttpResponseRedirect(reverse('index'))
     except:
-	project_error = True
+        project_error = True
     return HttpResponseRedirect('%s?%s&error=true' % (reverse('kg_application_join_mcc'), qs))
 
 

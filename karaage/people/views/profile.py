@@ -204,25 +204,17 @@ def password_change(request):
 
     saml_session = False 
     person = request.user
-    if person.saml_id:
-        saml_session = True
     if request.POST:
-        if saml_session:
-            form = PasswordChangeFormSaml(data=request.POST, person=person)
-        else:
-            form = PasswordChangeForm(data=request.POST, person=person)
+        form = PasswordChangeFormSaml(data=request.POST, person=person)
         if form.is_valid():
             form.save()
             messages.success(request, "Password changed successfully")
             return HttpResponseRedirect(reverse('kg_profile'))
     else:
-        if saml_session:
-            form = PasswordChangeFormSaml(person=person)
-            return render_to_response('karaage/common/profile_saml_password.html', {'person': person, 'form': form}, context_instance=RequestContext(request))
-        else:
-            form = PasswordChangeForm(person=person)
-            return render_to_response('karaage/common/profile_password.html', {'person': person, 'form': form}, context_instance=RequestContext(request))
-
+        form = PasswordChangeFormSaml(person=person)
+        return render_to_response('karaage/common/profile_saml_password.html', {'person': person, 'form': form}, context_instance=RequestContext(request))
+   
+    return HttpResponseBadRequest("<h1>Bad Request</h1>")
 
 @login_required
 def password_request(request):
