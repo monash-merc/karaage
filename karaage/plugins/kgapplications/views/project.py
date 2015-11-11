@@ -761,10 +761,10 @@ def get_application_state_machine():
     state_machine.add_state(
         StateWaitingForDelegate(), 'D',
         {'cancel': 'R', 'approve': 'K', 'duplicate': 'DUP', })
-# JH todo: set no password
+# JH: set no password
     state_machine.add_state(
         StateWaitingForAdmin(), 'K',
-        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='P', on_password_ok='C', on_error="R")})
+        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='C', on_password_ok='C', on_error="R")})
     state_machine.add_state(
         states.StatePassword(), 'P',
         {'submit': 'C', })
