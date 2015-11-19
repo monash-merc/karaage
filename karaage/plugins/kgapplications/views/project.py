@@ -638,7 +638,6 @@ class StateWaitingForDelegate(states.StateWaitingForApproval):
     authorised_text = "an institute delegate"
 
     def get_authorised_persons(self, application):
-        util.log("StateWaitingForDelegate get_authorised_persons")
         return application.institute.delegates \
             .filter(institutedelegate__send_email=True, is_active=True)
 
@@ -761,10 +760,10 @@ def get_application_state_machine():
     state_machine.add_state(
         StateWaitingForDelegate(), 'D',
         {'cancel': 'R', 'approve': 'K', 'duplicate': 'DUP', })
-# JH todo: set no password
+# JH: set no password
     state_machine.add_state(
         StateWaitingForAdmin(), 'K',
-        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='P', on_password_ok='C', on_error="R")})
+        {'cancel': 'R', 'duplicate': 'DUP', 'approve': states.TransitionApprove( on_password_needed='C', on_password_ok='C', on_error="R")})
     state_machine.add_state(
         states.StatePassword(), 'P',
         {'submit': 'C', })
@@ -944,6 +943,7 @@ def application_join_project(request, token=None):
                     application.state = ProjectApplication.WAITING_FOR_LEADER
                     application.needs_account = True
                     application.save()
+                    emails.send_user_request_email("common", application, "join", project.name)
                     messages.info(request, "Your request for joining project %s is pending for approving" % project.pid)
                     return HttpResponseRedirect(reverse('index'))
             except:
@@ -1009,6 +1009,7 @@ def application_apply_project(request):
 
                 application.save()
 # Todo: check if send emails works or not
+                emails.send_user_request_email("common", application, "apply for a new", request.POST.get("name"))
                 messages.info(request, "Thanks %s, your new project application is pending for institution delegates approving" %(applicant.username))
                 return HttpResponseRedirect(reverse('index'))
             return HttpResponseBadRequest("<h1>Bad Post</h1>") 
@@ -1051,7 +1052,8 @@ def application_join_mcc(request, token=None):
     qs = request.META['QUERY_STRING']
 
     try:
-        project = Project.objects.get(pid = "monarch")
+        pid = "monarch"
+        project = Project.objects.get(pid = pid)
         if project:
             members = project.group.members.filter(pk = user.pk)
             if members.count() > 0:
@@ -1061,6 +1063,7 @@ def application_join_mcc(request, token=None):
             application.state = ProjectApplication.WAITING_FOR_LEADER
             application.needs_account = True
             application.save()
+            emails.send_user_request_email(pid, application, "use", pid)
             messages.info(request, "Your request for joining MCC project %s is pending for approving" % project.pid)
             return HttpResponseRedirect(reverse('index'))
     except:

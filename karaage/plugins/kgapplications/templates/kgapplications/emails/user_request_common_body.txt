@@ -1,0 +1,7 @@
+{% autoescape off %}Hello {{ receiver.get_short_name }},
+
+Thank you for your interest to {{ request_type }} project {{ project_name }}.
+
+Your request has been received and we will respond within two business days on its outcome.
+
+{% include "karaage/emails/email_footer.txt" %}{% endautoescape %}

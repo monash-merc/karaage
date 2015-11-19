@@ -56,6 +56,22 @@ def send_request_email(
 
         send_mail(subject, body, settings.ACCOUNTS_EMAIL, [to_email])
 
+def send_user_request_email(name, application, request_type, project_name):
+    context = CONTEXT.copy()
+    context['requester'] = application.applicant
+    context['application'] = application
+    context['request_type'] = request_type 
+    context['project_name'] = project_name 
+    template_name = "user_request_" + name
+
+    if application.applicant and application.applicant.email:
+
+        context['receiver'] = application.applicant
+        to_email = application.applicant.email
+        subject, body = render_email(template_name, context)
+
+        send_mail(subject, body, settings.ACCOUNTS_EMAIL, [to_email])
+
 
 def send_invite_email(application, link, is_secret):
     """ Sends an email inviting someone to create an account"""
