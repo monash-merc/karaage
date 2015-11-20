@@ -35,7 +35,7 @@ from karaage.common.util import Util as util
 from karaage.machines.models import MachineCategory
 
 import json, traceback
-import six
+import six, datetime, time
 
 from ..models import ProjectApplication, Applicant
 from .. import forms, emails
@@ -979,6 +979,26 @@ def application_done(request, token):
     application = application.get_object()
     return render_to_response('kgapplications/projectapplication_done.html', {'application': application}, context_instance=RequestContext(request))
 
+def get_pid():
+    date = datetime.datetime.now().strftime("%Y%m")
+    number = '0001'
+    pid = "p" + date + number
+    found = True
+    while found:
+        try:
+            Project.objects.get(pid = pid)
+            number = str(int(number) + 1)
+            if len(number) == 1:
+                number = '000' + number
+            elif len(number) == 2:
+                number = '00' + number
+            elif len(number) == 3:
+                number = '0' + number
+            pid = "p" + date + number
+        except Project.DoesNotExist:
+            found = False
+    return pid
+
 @login_required
 def application_apply_project(request):
     application_form = forms.NewProjectApplicationForm 
@@ -1006,7 +1026,7 @@ def application_apply_project(request):
                 insititute = Institute.objects.get(name = institute_name)
                 application.institute = insititute 
                 application.institute.delegates.filter(institutedelegate__send_email = True, is_active = True)
-
+                application.pid = get_pid()
                 application.save()
 # Todo: check if send emails works or not
                 emails.send_user_request_email("common", application, "apply for a new", request.POST.get("name"))
