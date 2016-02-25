@@ -14,6 +14,8 @@ from karaage.institutes.models import Institute
 from karaage.machines.models import Account
 from karaage.people.models import Person, Group
 
+unsafe_list = ["'", " ", "*", ".", "&", "#", "@", "$" "%", "!", "^", "%"]
+
 logger = logging.getLogger(__name__)
 
 USER_LOG_FILE = "/var/local/user_log/hpcid_users.log"
@@ -260,6 +262,13 @@ class Util():
         return institute
 
     @classmethod
+    def posixName(self, name):
+        for unsafe in unsafe_list:
+            if unsafe in name:
+                name = name.replace(unsafe, "")
+        return name
+
+    @classmethod
     def parseUserId(self, request):
         if not settings.USER_ID_FILES and not settings.USER_ID_DIR:
             self.log("User id file does not exist")
@@ -280,7 +289,7 @@ class Util():
                     for ids in id_list:
                         if ids['email'].lower() == d['email'].lower():
                             if not ids["username"] in dict: 
-                                dict[ids["username"]] = ids["username"]            
+                                dict[ids["username"]] = self.posixName(ids["username"])            
         if dict: 
             self.log("Find dict")
             uname = self.getUniqueUsername(d['username'], dict)
