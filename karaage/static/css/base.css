@@ -345,9 +345,11 @@ ul.messagelist li {
     padding: 4px 5px 4px 25px;
     margin: 0 0 3px 0;
     border-bottom: 1px solid #ddd;
-    color: #666;
-    background: #f2f287 url(../img/icon_success.gif) 5px .3em no-repeat;
-/*
+    color: black;
+/*    color: #666;
+*/
+    background: #9AA71D url(../img/icon_success.gif) 5px .3em no-repeat;
+/*    background: #9AA71D url(../img/icon_success.gif) 5px .3em no-repeat;
     background: #ffc url(../img/icon_success.gif) 5px .3em no-repeat;
 */
 }
