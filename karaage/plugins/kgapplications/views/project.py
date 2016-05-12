@@ -915,6 +915,15 @@ def new_application(request):
             {},
             context_instance=RequestContext(request))
 
+def application_request_email(application):
+    try:
+        link, is_secret = base.get_registration_email_link(application)
+        project_leaders = application.project.leaders.filter(is_active=True)
+        emails.send_request_email("the project leader", project_leaders, application, link, is_secret)
+
+    except:
+        util.log("Exception to send project leader email %s" % traceback.format_exc())
+
 @login_required
 def application_join_project(request, token=None):
     user = request.user
@@ -943,6 +952,7 @@ def application_join_project(request, token=None):
                     application.state = ProjectApplication.WAITING_FOR_LEADER
                     application.needs_account = True
                     application.save()
+                    application_request_email(application)
                     emails.send_user_request_email("common", application, "join", project.name)
                     messages.info(request, "Your request for joining project %s is pending for approving" % project.pid)
                     return HttpResponseRedirect(reverse('index'))
@@ -1029,6 +1039,7 @@ def application_apply_project(request):
                 application.pid = get_pid()
                 application.save()
 # Todo: check if send emails works or not
+                application_request_email(application)
                 emails.send_user_request_email("common", application, "apply for a new", request.POST.get("name"))
                 messages.info(request, "Thanks %s, your new project application is pending for institution delegates approving" %(applicant.username))
                 return HttpResponseRedirect(reverse('index'))
@@ -1083,6 +1094,7 @@ def application_join_mcc(request, token=None):
             application.state = ProjectApplication.WAITING_FOR_LEADER
             application.needs_account = True
             application.save()
+            application_request_email(application)
             emails.send_user_request_email(pid, application, "use", pid)
             messages.info(request, "Your request for joining MCC project %s is pending for approving" % project.pid)
             return HttpResponseRedirect(reverse('index'))
