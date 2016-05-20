@@ -106,7 +106,7 @@ class Util():
     @classmethod
     def getUsername(self, commonName, lastName):
         firstName = self.getFirstName(commonName, lastName) 
-        username = firstName.lower()[0] + lastName[:7].lower()
+        username = self.posixName(firstName.lower()[0] + lastName[:7].lower())
             
         if self.findUsername(username):
             for i in range(1, 30):
