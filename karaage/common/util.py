@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import
-import os, sys, random, string, traceback, json, datetime
+import os, sys, random, string, traceback, json, datetime, re
 from django.contrib.auth.models import User
 from django.db.models import Q
 from karaage.people.models import Person
@@ -14,7 +14,8 @@ from karaage.institutes.models import Institute
 from karaage.machines.models import Account
 from karaage.people.models import Person, Group
 
-unsafe_list = ["'", " ", "*", ".", "&", "#", "@", "$" "%", "!", "^", "%"]
+safe_list = "[a-z0-9]"
+unsafe_list = "[^a-z0-9]" 
 
 logger = logging.getLogger(__name__)
 
@@ -263,9 +264,8 @@ class Util():
 
     @classmethod
     def posixName(self, name):
-        for unsafe in unsafe_list:
-            if unsafe in name:
-                name = name.replace(unsafe, "")
+        if re.match(safe_list, username) == None:
+            name = re.sub(unsafe_list, "", username.lower())
         return name
 
     @classmethod
