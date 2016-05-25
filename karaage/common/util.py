@@ -14,8 +14,8 @@ from karaage.institutes.models import Institute
 from karaage.machines.models import Account
 from karaage.people.models import Person, Group
 
-safe_list = "[a-z0-9]"
-unsafe_list = "[^a-z0-9]" 
+safe_list = "[a-z1-9]"
+unsafe_list = "[^a-z1-9]" 
 
 logger = logging.getLogger(__name__)
 
