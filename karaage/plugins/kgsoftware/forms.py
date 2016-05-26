@@ -69,9 +69,9 @@ class AddPackageForm(SoftwareForm):
 
         data = self.cleaned_data
 
-        if data['license_version'] \
-                or data['license_date'] \
-                or data['license_text']:
+# JH fixed a bug
+        license = [data['license_version'], data['license_date'], data['license_text']]
+        if not all (license) and any (license):
             raise forms.ValidationError(
                 six.u('You must specify all fields in the license section'))
 
