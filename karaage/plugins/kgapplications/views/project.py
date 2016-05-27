@@ -34,7 +34,7 @@ from karaage.common import log, is_admin, saml
 from karaage.common.util import Util as util
 from karaage.machines.models import MachineCategory
 
-import json, traceback
+import json, traceback, random, string
 import six, datetime, time
 
 from ..models import ProjectApplication, Applicant
@@ -989,22 +989,18 @@ def application_done(request, token):
     application = application.get_object()
     return render_to_response('kgapplications/projectapplication_done.html', {'application': application}, context_instance=RequestContext(request))
 
+def format_pid():
+    s = string.lowercase
+    pid = ''.join(random.sample(s, 3)) + str(random.randint(100, 900))
+    return pid
+
 def get_pid():
-    date = datetime.datetime.now().strftime("%Y%m")
-    number = '0001'
-    pid = "p" + date + number
+    pid = format_pid()
     found = True
     while found:
         try:
             Project.objects.get(pid = pid)
-            number = str(int(number) + 1)
-            if len(number) == 1:
-                number = '000' + number
-            elif len(number) == 2:
-                number = '00' + number
-            elif len(number) == 3:
-                number = '0' + number
-            pid = "p" + date + number
+            pid = format_pid()
         except Project.DoesNotExist:
             found = False
     return pid
