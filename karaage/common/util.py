@@ -14,7 +14,6 @@ from karaage.institutes.models import Institute
 from karaage.machines.models import Account
 from karaage.people.models import Person, Group
 
-safe_list = "[a-z0-9]"
 unsafe_list = "[^a-z0-9]" 
 
 logger = logging.getLogger(__name__)
@@ -264,8 +263,8 @@ class Util():
 
     @classmethod
     def posixName(self, name):
-        if re.match(safe_list, username) == None:
-            name = re.sub(unsafe_list, "", username.lower())
+        if re.search(unsafe_list, name):
+            name = re.sub(unsafe_list, "", name.lower())
         return name
 
     @classmethod
