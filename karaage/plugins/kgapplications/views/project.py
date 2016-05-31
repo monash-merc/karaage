@@ -33,6 +33,7 @@ from karaage.institutes.models import Institute
 from karaage.common import log, is_admin, saml
 from karaage.common.util import Util as util
 from karaage.machines.models import MachineCategory
+from karaage.people.models import Group
 
 import json, traceback, random, string
 import six, datetime, time
@@ -915,11 +916,20 @@ def new_application(request):
             {},
             context_instance=RequestContext(request))
 
-def application_request_email(application):
+def application_request_email(application, send_to = "leader"):
     try:
+        if send_to == "admin":
+            authorised_text = "an administrator"
+            authorised_persons = Person.objects.filter(is_admin = admin)
+        elif send_to == "delegate":
+            authorised_text = "the delegate"
+            authorised_persons = application.institute.delegates.all()
+        else:
+            authorised_text = "the project leader"
+            authorised_persons = application.project.leaders.filter(is_active=True)
+
         link, is_secret = base.get_registration_email_link(application)
-        project_leaders = application.project.leaders.filter(is_active=True)
-        emails.send_request_email("the project leader", project_leaders, application, link, is_secret)
+        emails.send_request_email(authorised_text, authorised_persons, application, link, is_secret)
 
     except:
         util.log("Exception to send project leader email %s" % traceback.format_exc())
@@ -1027,37 +1037,19 @@ def application_apply_project(request):
                 application.make_leader = True 
                 application.needs_account = True
                 application.state = ProjectApplication.WAITING_FOR_DELEGATE
-                institute_name = request.POST.get('institute')
-                util.log("Institute name = '%s'" %(institute_name))
-                insititute = Institute.objects.get(name = institute_name)
-                application.institute = insititute 
-                application.institute.delegates.filter(institutedelegate__send_email = True, is_active = True)
+                group = Group.objects.get(name = "monashcampusclusterapprovals")
+                application.institute = Institute.objects.get(group = group.id) 
                 application.pid = get_pid()
                 application.save()
-# Todo: check if send emails works or not
-                application_request_email(application)
-                emails.send_user_request_email("common", application, "apply for a new", request.POST.get("name"))
+                application_request_email(application, send_to = "delegate")
+                emails.send_user_request_email("common", application, "apply for a new project", request.POST.get("name"))
                 messages.info(request, "Thanks %s, your new project application is pending for institution delegates approving" %(applicant.username))
                 return HttpResponseRedirect(reverse('index'))
             return HttpResponseBadRequest("<h1>Bad Post</h1>") 
         else:
             return HttpResponseBadRequest("<h1>Bad Request</h1>") 
-    else:
-        try:
-            institute_list = Institute.objects.all()
-            institute_dic = {}
-            institutes = None
-            for i in institute_list:
-                if i.is_active and not i.saml_entityid:
-                    institute_dic[i.name] = i.name    
-                if institute_dic:
-                    institutes = tuple(institute_dic.items())
-                if institutes:
-                    institute_form = forms.InstituteForm(institutes = institutes)
-            form = application_form(instance=application, initial={'institute': institute})
-        except:
-            util.log("Exception: %s" %(traceback.format_exc()))
-    return render_to_response('kgapplications/request_new_project.html', {'form': form, 'application': application, 'institute_form': institute_form}, context_instance=RequestContext(request))
+    form = application_form(instance=application, initial={'institute': institute})
+    return render_to_response('kgapplications/request_new_project.html', {'form': form, 'application': application}, context_instance=RequestContext(request))
 
 @login_required
 def application_join_mcc(request, token=None):
