@@ -1001,7 +1001,7 @@ def application_done(request, token):
 
 def format_pid():
     s = string.lowercase
-    pid = ''.join(random.sample(s, 3)) + str(random.randint(100, 900))
+    pid = ''.join(random.sample(s, 2)) + str(random.randint(10, 99))
     return pid
 
 def get_pid():
