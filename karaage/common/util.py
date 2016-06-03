@@ -299,4 +299,22 @@ class Util():
                 tup = tuple(udict.items())
                 self.log("Create user id display content")
         return tup
+    
+    @classmethod
+    def formatDefaultProjectPid(self):
+        s = string.lowercase
+        pid = ''.join(random.sample(s, 2)) + str(random.randint(10, 99))
+        return pid
+
+    @classmethod
+    def getDefaultProjectPid(self):
+        pid = self.formatDefaultProjectPid()
+        found = True
+        while found:
+            try:
+                Project.objects.get(pid = pid)
+                pid = format_pid()
+            except Project.DoesNotExist:
+                found = False
+        return pid
             
