@@ -60,7 +60,7 @@ class ProjectForm(forms.ModelForm):
             'pid', 'name', 'institute', 'leaders', 'description',
             'start_date', 'end_date', 'additional_req')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pid_initial = None, *args, **kwargs):
         # Make PID field read only if we are editing a project
         super(ProjectForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
@@ -68,6 +68,8 @@ class ProjectForm(forms.ModelForm):
             self.fields['pid'].widget.attrs['readonly'] = "readonly"
             self.fields['pid'].help_text = \
                 "You can't change the PID of an existing project"
+        if pid_initial:
+            self.fields['pid'].initial = pid_initial
 
     def clean_pid(self):
         pid = self.cleaned_data['pid']

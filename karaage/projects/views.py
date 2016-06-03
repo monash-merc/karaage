@@ -37,6 +37,7 @@ from karaage.projects.forms import ProjectForm, UserProjectForm, \
 from karaage.projects.utils import get_new_pid, add_user_to_project, \
     remove_user_from_project
 import karaage.common as util
+from karaage.common.util import Util as cutil
 
 def profile_all_projects(request):
      
@@ -155,7 +156,9 @@ def add_edit_project(request, project_id=None):
         flag = 2
 
     if util.is_admin(request):
-        form = ProjectForm(instance=project, data=request.POST or None)
+# JH add initial pid
+        initial_pid = cutil.getDefaultProjectPid()
+        form = ProjectForm(instance=project, data=request.POST or None, pid_initial = initial_pid)
     else:
         if not project.can_edit(request):
             return HttpResponseForbidden('<h1>Access Denied</h1>')
