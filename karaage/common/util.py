@@ -303,7 +303,7 @@ class Util():
     @classmethod
     def formatDefaultProjectPid(self):
         s = string.lowercase
-        pid = ''.join(random.sample(s, 2)) + str(random.randint(10, 99))
+        pid = ''.join(random.sample(s, 3)) + str(random.randint(10, 99))
         return pid
 
     @classmethod
