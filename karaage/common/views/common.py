@@ -106,9 +106,6 @@ def aafbootstrap(request):
                 return
             return HttpResponseRedirect(redirect_to)
         return render_to_response('karaage/common/aafid.html', {'form': form}, context_instance=RequestContext(request))        
-    else:
-        util.log("Not find ids")
-    person = util.searchPerson(request)
     new_user, error, person = util.aafbootstrap(request)
     if error:
         return 
