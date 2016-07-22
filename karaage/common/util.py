@@ -21,7 +21,9 @@ logger = logging.getLogger(__name__)
 USER_LOG_FILE = "/var/local/user_log/hpcid_users.log"
 
 class Util(): 
-
+    
+    username_list = []
+    
     def __init(self):
         projectId = "pCvl"
 
@@ -89,6 +91,19 @@ class Util():
         return udict
 
     @classmethod
+    def setUniqueUsername(self, username):
+        tail = 1
+        conflict = True
+        original_username = username
+        while conflict:
+            conflict = False
+            if self.findUsername(username):
+                username = original_username + str(tail)
+                tail = tail + 1
+                conflict = True
+        return username 
+
+    @classmethod
     def getUniqueUsername(self, username, usernames = {}):
         uname = None 
         if not username in usernames:
@@ -104,17 +119,25 @@ class Util():
         return uname
 
     @classmethod
-    def getUsername(self, commonName, lastName):
-        firstName = self.getFirstName(commonName, lastName) 
-        username = self.posixName(firstName.lower()[0] + lastName[:7].lower())
-            
-        if self.findUsername(username):
-            for i in range(1, 30):
-                name = username + str(i)
-                if self.findUsername(name) == False:
-                    username = name
-                    break
-        return username
+    def setUsername(self, commonName, lastName, eppn = None):
+        if not self.username_list:
+            firstName = self.getFirstName(commonName, lastName) 
+            pFirstName = self.posixName(firstName.lower())
+            pLastName = self.posixName(lastName.lower())
+
+            username = pFirstName[0] + pLastName[:7]
+            username = self.setUniqueUsername(username)
+            self.username_list.append(username)
+        
+            username = pFirstName[:7] + pLastName[0]
+            username = self.setUniqueUsername(username)
+            self.username_list.append(username)
+
+            if eppn:
+                username = eppn[0:eppn.find("@")]
+                if username not in self.username_list:
+                    username = self.setUniqueUsername(username)
+                    self.username_list.append(username)
 
     @classmethod
     def getPassword(self, length = 8):
@@ -169,7 +192,8 @@ class Util():
         d["department"] = ""
         d["supervisor"] = ""
         d["email"] = attr['email']
-        d["username"] = self.getUsername(attr['full_name'], attr['last_name']) 
+        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
+        d["username"] = self.username_list[0]
         d['password'] = "" 
 #        d['password'] = self.getPassword()
         d["country"] = ""
@@ -180,7 +204,7 @@ class Util():
         d["idp"] = attr['idp'] 
         d["short_name"] = attr['last_name'] 
         d['saml_id'] = attr['persistent_id']
-        d['principal_name'] = attr['principal_name']
+        d['eppn'] = attr['eppn']
         return d, error
 
     @classmethod
@@ -198,7 +222,7 @@ class Util():
             person = self.addPerson(d)
             if person:
                 new_user = True  
-                user_log = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M") + ": " + d["username"] + " " + d['email'] + " " + d['principal_name'] + " " + d['saml_id'] + "\n"
+                user_log = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M") + ": " + d["username"] + " " + d['email'] + " " + d['eppn'] + " " + d['saml_id'] + "\n"
                 self.user_log(user_log)
         return new_user, error, person 
 
@@ -269,35 +293,33 @@ class Util():
 
     @classmethod
     def parseUserId(self, request):
-        if not settings.USER_ID_FILES and not settings.USER_ID_DIR:
-            self.log("User id file does not exist")
-            return None
-        filedir = settings.USER_ID_DIR 
-        filenames = settings.USER_ID_FILES
-        d, error = self.parseMetadata(request)
-        if error:
-            self.log("Failed to parse meta data")
-            return None 
-        tup = None
         dict = {}
-        username_list = []
-        for filename in filenames:
-            if os.path.isfile(filedir + "/" + filename):
-                with open(filedir + "/" + filename) as data:
-                    id_list = json.load(data)
-                    for ids in id_list:
-                        if ids['email'].lower() == d['email'].lower():
-                            if not ids["username"] in dict: 
-                                dict[ids["username"]] = self.posixName(ids["username"])            
-        if dict: 
-            self.log("Find dict")
-            uname = self.getUniqueUsername(d['username'], dict)
-            if uname:
-                dict[uname] = uname
-            udict = self.getUniqueUsernameList(dict)
-            if udict:
-                tup = tuple(udict.items())
-                self.log("Create user id display content")
+        tup = None
+        for username in self.username_list:
+            dict[username] = username 
+
+        if settings.USER_ID_FILES and settings.USER_ID_DIR:
+            filedir = settings.USER_ID_DIR 
+            filenames = settings.USER_ID_FILES
+            d, error = self.parseMetadata(request)
+            if not error:
+                username_list = []
+                for filename in filenames:
+                    if os.path.isfile(filedir + "/" + filename):
+                        with open(filedir + "/" + filename) as data:
+                            id_list = json.load(data)
+                            for ids in id_list:
+                                if ids['email'].lower() == d['email'].lower():
+                                    if not ids["username"] in dict: 
+                                        dict[ids["username"]] = self.posixName(ids["username"])            
+
+        uname = self.getUniqueUsername(d['username'], dict)
+        if uname:
+            dict[uname] = uname
+        udict = self.getUniqueUsernameList(dict)
+        if udict:
+            tup = tuple(udict.items())
+            self.log("Create user id display content")
         return tup
     
     @classmethod
