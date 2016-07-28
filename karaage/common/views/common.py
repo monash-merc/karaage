@@ -94,7 +94,6 @@ def aafbootstrap(request):
         return HttpResponseRedirect(redirect_to)
     ids = util.parseUserId(request)
     if ids:
-        util.log("Select username from ids")
         form = IdForm(ids = ids)
         if request.method == 'POST':
             if request.POST.get("Cancel"):
@@ -102,6 +101,7 @@ def aafbootstrap(request):
             else:
                 id = request.POST.get('id')
                 new_user, error, person = util.aafbootstrap(request, id)
+                util.log("Create user account username = '%s'" % id)
             if error:
                 return
             return HttpResponseRedirect(redirect_to)
