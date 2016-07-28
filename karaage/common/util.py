@@ -192,8 +192,9 @@ class Util():
         d["department"] = ""
         d["supervisor"] = ""
         d["email"] = attr['email']
-        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
-        d["username"] = self.username_list[0]
+#        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
+        d["username"] = "" 
+#        d["username"] = self.username_list[0]
         d['password'] = "" 
 #        d['password'] = self.getPassword()
         d["country"] = ""
@@ -219,7 +220,11 @@ class Util():
         else:
             if id:
                 d["username"] = id 
+                self.log("User select username %s" % d["username"])
+            if not d["username"]:
+                raise ValueError('empty username')
             person = self.addPerson(d)
+            self.log("Create person %s" % person.username)
             if person:
                 new_user = True  
                 user_log = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M") + ": " + d["username"] + " " + d['email'] + " " + d['eppn'] + " " + d['saml_id'] + "\n"
@@ -295,6 +300,8 @@ class Util():
     def parseUserId(self, request):
         dict = {}
         tup = None
+        self.username_list = [] 
+        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
         for username in self.username_list:
             dict[username] = username 
 
