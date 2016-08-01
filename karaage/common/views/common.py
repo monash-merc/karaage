@@ -89,10 +89,10 @@ def index(request):
 
 def aafbootstrap(request):
     redirect_to = reverse('samlredirect')
-    user = util.findUser(request)
+    user, attr = util.findUser(request)
     if user:
         return HttpResponseRedirect(redirect_to)
-    ids = util.parseUserId(request)
+    ids = util.parseUserId(request, attr)
     if ids:
         form = IdForm(ids = ids)
         if request.method == 'POST':

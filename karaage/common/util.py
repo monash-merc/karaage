@@ -22,8 +22,6 @@ USER_LOG_FILE = "/var/local/user_log/hpcid_users.log"
 
 class Util(): 
     
-    username_list = []
-    
     def __init(self):
         projectId = "pCvl"
 
@@ -120,24 +118,28 @@ class Util():
 
     @classmethod
     def setUsername(self, commonName, lastName, eppn = None):
-        if not self.username_list:
-            firstName = self.getFirstName(commonName, lastName) 
-            pFirstName = self.posixName(firstName.lower())
-            pLastName = self.posixName(lastName.lower())
+        username_list = []
+        firstName = self.getFirstName(commonName, lastName) 
+        pFirstName = self.posixName(firstName.lower())
+        pLastName = self.posixName(lastName.lower())
 
-            username = pFirstName[0] + pLastName[:7]
-            username = self.setUniqueUsername(username)
-            self.username_list.append(username)
+        username = pFirstName[0] + pLastName[:7]
+        username = self.setUniqueUsername(username)
+        username_list.append(username)
+        self.log("Add username %s to the list" %(username))
         
-            username = pFirstName[:7] + pLastName[0]
-            username = self.setUniqueUsername(username)
-            self.username_list.append(username)
+        username = pFirstName[:7] + pLastName[0]
+        username = self.setUniqueUsername(username)
+        username_list.append(username)
+        self.log("Add username %s to the list" %(username))
 
-            if eppn:
-                username = eppn[0:eppn.find("@")]
-                if username not in self.username_list:
-                    username = self.setUniqueUsername(username)
-                    self.username_list.append(username)
+        if eppn:
+            username = eppn[0:eppn.find("@")]
+            if username not in username_list:
+                username = self.setUniqueUsername(username)
+                username_list.append(username)
+                self.log("Add username %s to the list" %(username))
+        return username_list
 
     @classmethod
     def getPassword(self, length = 8):
@@ -173,7 +175,7 @@ class Util():
         d, error = self.parseMetadata(request)
         if not error:
             user = self.searchPerson(d["saml_id"])
-        return user
+        return user, d
 
     @classmethod
     def parseMetadata(self, request):
@@ -192,9 +194,7 @@ class Util():
         d["department"] = ""
         d["supervisor"] = ""
         d["email"] = attr['email']
-#        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
         d["username"] = "" 
-#        d["username"] = self.username_list[0]
         d['password'] = "" 
 #        d['password'] = self.getPassword()
         d["country"] = ""
@@ -297,20 +297,18 @@ class Util():
         return name
 
     @classmethod
-    def parseUserId(self, request):
+    def parseUserId(self, request, attr):
         dict = {}
         tup = None
-        self.username_list = [] 
-        self.setUsername(attr['full_name'], attr['last_name'], attr['eppn'])
-        for username in self.username_list:
-            dict[username] = username 
+        username_list = self.setUsername(attr['full_name'], attr['surname'], attr['eppn'])
+        for username in username_list:
+            dict[username] = username
 
         if settings.USER_ID_FILES and settings.USER_ID_DIR:
             filedir = settings.USER_ID_DIR 
             filenames = settings.USER_ID_FILES
             d, error = self.parseMetadata(request)
             if not error:
-                username_list = []
                 for filename in filenames:
                     if os.path.isfile(filedir + "/" + filename):
                         with open(filedir + "/" + filename) as data:
