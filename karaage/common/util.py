@@ -75,10 +75,7 @@ class Util():
 
     @classmethod
     def getFirstName(self, commonName, lastName):
-        lastNameLength = len(lastName)
-        commonNameLength = len(commonName)
-        firstName = commonName[0 : commonNameLength - lastNameLength - 1]
-        return firstName
+        return commonName.split(' ')[0]
     
     @classmethod
     def getUniqueUsernameList(self, dict = {}):
