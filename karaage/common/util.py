@@ -133,7 +133,7 @@ class Util():
         if eppn:
             username = eppn[0:eppn.find("@")]
             if username not in username_list:
-                username = self.setUniqueUsername(username)
+                username = self.setUniqueUsername(self.posixName(username.lower()))
                 username_list.append(username)
                 self.log("Add username %s to the list" %(username))
         return username_list
