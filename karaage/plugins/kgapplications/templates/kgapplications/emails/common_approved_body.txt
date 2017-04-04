@@ -24,6 +24,6 @@ Specific access information is available at:
 
 https://confluence-vre.its.monash.edu.au/display/monarch/How+to+Access+MonARCH
 
-For MonARCH help, please mcc-help@monash.edu
+For MonARCH help, please email mcc-help@monash.edu
 
 {% include "karaage/emails/email_footer.txt" %}{% endautoescape %}
