@@ -1,6 +1,5 @@
 {% autoescape off %}Hello {{ receiver.get_full_name }},
 
-
 {{ application.applicant }} is requesting to {{ application.info }}.
 
 This application is now waiting for {{ authorised_text }} to process the application.
