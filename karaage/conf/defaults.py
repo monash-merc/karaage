@@ -337,9 +337,9 @@ SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
     "HTTP_AUEDUPERSONSHAREDTOKEN": (True, "persistent_id"),
     "HTTP_MAIL": (True, "email"),
-    "HTTP_GIVENNAME": (True, "first_name"),
-    "HTTP_SN": (True, "last_name"),
-    "HTTP_CN": (True, "full_name"),
+    "HTTP_GIVENNAME": (False, "first_name"),
+    "HTTP_SN": (False, "last_name"),
+    "HTTP_CN": (False, "full_name"),
     "HTTP_EPPN": (False, "eppn"),
     "HTTP_TELEPHONENUMBER": (False, "telephone"),
 }

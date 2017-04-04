@@ -14,14 +14,14 @@ from karaage.institutes.models import Institute
 from karaage.machines.models import Account
 from karaage.people.models import Person, Group
 
-unsafe_list = "[^a-z0-9]" 
+unsafe_list = "[^a-z0-9]"
 
 logger = logging.getLogger(__name__)
 
 USER_LOG_FILE = "/var/local/user_log/hpcid_users.log"
 
-class Util(): 
-    
+class Util():
+
     def __init(self):
         projectId = "pCvl"
 
@@ -39,7 +39,7 @@ class Util():
             with open(USER_LOG_FILE, "a") as log:
                 log.write(message)
         else:
-            self.warning("Disable generating user list log") 
+            self.warning("Disable generating user list log")
 
     @classmethod
     def parseShibAttributes(self, request):
@@ -62,7 +62,7 @@ class Util():
         if error:
             error = self.parseAttributes(shib_attrs, error)
         return shib_attrs, error
-         
+
     @classmethod
     def parseAttributes(self, attr, error):
         if error:
@@ -71,12 +71,15 @@ class Util():
                     if attr['full_name'] and attr['last_name']:
                         attr['first_name'] = self.getFirstName(attr['full_name'], attr['last_name'])
                         error = False
-        return error    
+        return error
 
     @classmethod
     def getFirstName(self, commonName, lastName):
-        return commonName.split(' ')[0]
-    
+        try:
+            return commonName.split(' ')[0]
+        except:
+            return None
+
     @classmethod
     def getUniqueUsernameList(self, dict = {}):
         udict = {}
@@ -96,11 +99,11 @@ class Util():
                 username = original_username + str(tail)
                 tail = tail + 1
                 conflict = True
-        return username 
+        return username
 
     @classmethod
     def getUniqueUsername(self, username, usernames = {}):
-        uname = None 
+        uname = None
         if not username in usernames:
             uname = username
             tail = 1
@@ -116,15 +119,31 @@ class Util():
     @classmethod
     def setUsername(self, commonName, lastName, eppn = None):
         username_list = []
-        firstName = self.getFirstName(commonName, lastName) 
-        pFirstName = self.posixName(firstName.lower())
-        pLastName = self.posixName(lastName.lower())
+        # any one of these things may be None (they are not core AAF attributes)
+        # in case they are none, use the value x because we can't start
+        # a username with a number
+        try:
+            firstName = self.getFirstName(commonName, lastName)
+        except:
+            firstName=None
+        try:
+            pFirstName = self.posixName(firstName.lower())
+        except:
+            pFirstName = "x"
+        try:
+            pLastName = self.posixName(lastName.lower())
+        except:
+            pLastName = "x"
+        if pFirstName == "":
+            pFirstName = "x"
+        if pLastName == "":
+            pLastName = "x"
 
         username = pFirstName[0] + pLastName[:7]
         username = self.setUniqueUsername(username)
         username_list.append(username)
         self.log("Add username %s to the list" %(username))
-        
+
         username = pFirstName[:7] + pLastName[0]
         username = self.setUniqueUsername(username)
         username_list.append(username)
@@ -144,18 +163,18 @@ class Util():
         random.seed = (os.urandom(1024))
         password = ''.join(random.choice(chars) for i in range(length))
         return password
-    
+
     @classmethod
     def findUsername(self, username):
-        conflict = False 
+        conflict = False
         try:
             person = Person.objects.get(username = username)
             if person:
                 conflict = True
         except Person.DoesNotExist:
             pass
-        return conflict 
-    
+        return conflict
+
     @classmethod
     def searchPerson(self, id):
         person = None
@@ -164,8 +183,8 @@ class Util():
             self.log("Found person %s" % person.username)
         except Person.DoesNotExist:
             pass
-        return person 
-    
+        return person
+
     @classmethod
     def findUser(self, request):
         user = None
@@ -191,18 +210,25 @@ class Util():
         d["department"] = ""
         d["supervisor"] = ""
         d["email"] = attr['email']
-        d["username"] = "" 
-        d['password'] = "" 
+        d["username"] = ""
+        d['password'] = ""
 #        d['password'] = self.getPassword()
         d["country"] = ""
-        d["telephone"] = attr['telephone'] 
+        d["telephone"] = attr['telephone']
         d["mobile"] = ""
         d["fax"] = ""
         d["address"] = ""
-        d["idp"] = attr['idp'] 
-        d["short_name"] = attr['last_name'] 
+        d["idp"] = attr['idp']
+        d["short_name"] = attr['last_name']
         d['saml_id'] = attr['persistent_id']
         d['eppn'] = attr['eppn']
+        # Recently AAF appears to have changed policy so first_name and surname
+        # are no longer core. Therefore these could be undefined, I suspect
+        # karaage will have a problem if we leave them as None rather than setting
+        # to th empty string
+        for kv in d.iteritems():
+            if kv[1] == None:
+                d[kv[0]] = ""
         return d, error
 
     @classmethod
@@ -210,23 +236,23 @@ class Util():
         new_user = False
         d, error = self.parseMetadata(request)
         if error:
-            return new_user, error, None 
+            return new_user, error, None
         person = self.searchPerson(d["saml_id"])
         if person:
             self.updateProfile(person, d)
         else:
             if id:
-                d["username"] = id 
+                d["username"] = id
                 self.log("User select username %s" % d["username"])
             if not d["username"]:
                 raise ValueError('empty username')
             person = self.addPerson(d)
             self.log("Create person %s" % person.username)
             if person:
-                new_user = True  
+                new_user = True
                 user_log = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M") + ": " + d["username"] + " " + d['email'] + " " + d['eppn'] + " " + d['saml_id'] + "\n"
                 self.user_log(user_log)
-        return new_user, error, person 
+        return new_user, error, person
 
     @classmethod
     def updateProfile(self, p, d):
@@ -238,7 +264,7 @@ class Util():
 
 #    @classmethod
 #    def getId(self, username, email):
-        
+
 
     @classmethod
     def addPerson(self, d):
@@ -277,7 +303,7 @@ class Util():
         if hasattr(settings, "DEFAULT_MACHINE_CATEGORY_NAME"):
             mc = MachineCategory.objects.get(name = settings.DEFAULT_MACHINE_CATEGORY_NAME)
         return mc
-    
+
     @classmethod
     def getInstitute(self, entityId):
         institute = None
@@ -302,7 +328,7 @@ class Util():
             dict[username] = username
 
         if settings.USER_ID_FILES and settings.USER_ID_DIR:
-            filedir = settings.USER_ID_DIR 
+            filedir = settings.USER_ID_DIR
             filenames = settings.USER_ID_FILES
             d, error = self.parseMetadata(request)
             if not error:
@@ -312,8 +338,8 @@ class Util():
                             id_list = json.load(data)
                             for ids in id_list:
                                 if ids['email'].lower() == d['email'].lower():
-                                    if not ids["username"] in dict: 
-                                        dict[ids["username"]] = self.posixName(ids["username"])            
+                                    if not ids["username"] in dict:
+                                        dict[ids["username"]] = self.posixName(ids["username"])
 
         uname = self.getUniqueUsername(d['username'], dict)
         if uname:
@@ -323,7 +349,7 @@ class Util():
             tup = tuple(udict.items())
             self.log("Create user id display content")
         return tup
-    
+
     @classmethod
     def formatDefaultProjectPid(self):
         s = string.lowercase
@@ -341,4 +367,3 @@ class Util():
             except Project.DoesNotExist:
                 found = False
         return pid
-            
