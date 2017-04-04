@@ -1,3 +1,3 @@
-Thanks,
+Kind regards,
 
-{{ org_name }} accounts team
+The {{ org_name }} accounts team

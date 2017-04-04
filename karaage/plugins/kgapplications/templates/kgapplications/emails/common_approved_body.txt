@@ -1,8 +1,22 @@
-{% autoescape off %}Hello {{ receiver.get_short_name }},
+{% autoescape off %}Hello {{ receiver.get_full_name }},
 
-We are pleased to advise that your application to use MonARCH has been approved. Your account is currently being prepared and will be ready to use within 30 minutes. 
+We are pleased to advise that your HPCID application has been approved. Your account is currently being provisioned and will be ready to use within 2 hours.
 
-Please find all relevant information on MonARCH at:
+MASSIVE 3 (M3) Users
+--------------------
+M3 documentation can be found at:
+
+http://docs.massive.org.au
+
+Specific access information is available at:
+
+http://docs.massive.org.au/M3/connecting-to-m3.html
+
+For M3 help, please email help@massive.org.au
+
+MonARCH Users
+-------------
+MonARCH documentation can be found at:
 
 https://confluence-vre.its.monash.edu.au/display/monarch/MonARCH+Home
 
@@ -10,6 +24,6 @@ Specific access information is available at:
 
 https://confluence-vre.its.monash.edu.au/display/monarch/How+to+Access+MonARCH
 
-For help, please contact: mcc-help@monash.edu
+For MonARCH help, please email mcc-help@monash.edu
 
 {% include "karaage/emails/email_footer.txt" %}{% endautoescape %}
