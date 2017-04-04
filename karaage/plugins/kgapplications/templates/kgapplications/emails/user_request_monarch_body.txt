@@ -1,7 +1,7 @@
-{% autoescape off %}Hello {{ receiver.get_short_name }},
+{% autoescape off %}Hello {{ receiver.get_full_name }},
 
-Thank you for your interest to use MonARCH, the successor to the MCC.
+Thank you for your expression of interest to use MonARCH, the successor to the MCC.
 
-Your request has been received and we will respond within two business days on its outcome.
+Your request has been received and we will notify you of the outcome within two business days.
 
 {% include "karaage/emails/email_footer.txt" %}{% endautoescape %}
