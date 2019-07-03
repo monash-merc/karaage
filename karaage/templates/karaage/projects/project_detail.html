@@ -104,7 +104,9 @@
                         <li><a href="{% url 'kg_project_edit' project.id %}" class="changelink">Edit</a></li>
                     {% endif %}
                 {% endif %}
-                {% for_each_app_include "project_detail_tools.html" %}
+                {% comment "Removed by KW to stop people inviting users when it doesn't work!" %}
+                    {% for_each_app_include "project_detail_tools.html" %}
+                {% endcomment %}
             </ul>
         </div>
     </div>
