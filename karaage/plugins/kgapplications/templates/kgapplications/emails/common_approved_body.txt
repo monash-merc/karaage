@@ -1,6 +1,6 @@
 {% autoescape off %}Hello {{ receiver.get_full_name }},
 
-We are pleased to advise that your HPCID application has been approved. Your account is currently being provisioned and will be ready to use within 2 hours.
+We are pleased to advise that your HPCID application has been approved. Your account is currently being provisioned and will be ready to use within 24 hours.
 
 MASSIVE 3 (M3) Users
 --------------------
@@ -18,11 +18,11 @@ MonARCH Users
 -------------
 MonARCH documentation can be found at:
 
-https://confluence-vre.its.monash.edu.au/display/monarch/MonARCH+Home
+https://docs.monarch.erc.monash.edu/
 
 Specific access information is available at:
 
-https://confluence-vre.its.monash.edu.au/display/monarch/How+to+Access+MonARCH
+https://docs.monarch.erc.monash.edu/MonARCH/connecting-to-MonARCH.html
 
 For MonARCH help, please email mcc-help@monash.edu
 
